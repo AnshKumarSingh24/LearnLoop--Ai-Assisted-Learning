@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>You're Ready</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+<div class="complete-page">
+
+    <div class="complete-card">
+
+        <div class="success-icon">
+            ✓
+        </div>
+
+        <p class="small-title">PERSONALIZATION COMPLETE</p>
+
+        <h1>
+            You're all <span>set!</span> 🎉
+        </h1>
+
+        <p class="description">
+            We've used your answers to create a learning
+            experience tailored to your preferences.
+        </p>
+
+        <div id="summary"></div>
+
+        <button class="main-button" onclick="startLearning()">
+            Start Learning →
+        </button>
+
+    </div>
+
+</div>
+
+
+<script>
+
+const savedAnswers =
+    JSON.parse(localStorage.getItem("userAnswers"));
+
+
+const questionNames = [
+    "Learner level",
+    "Goals",
+    "Learning format",
+    "Explanation style",
+    "User role",
+    "Grounding strictness",
+    "Sources & citations"
+];
+
+
+const summary =
+    document.getElementById("summary");
+
+
+if (savedAnswers) {
+
+    savedAnswers.forEach((answer, index) => {
+
+        const item =
+            document.createElement("div");
+
+        item.className = "summary-item";
+
+        item.innerHTML = `
+            <strong>${questionNames[index]}</strong>
+            <p>${answer.join(", ")}</p>
+        `;
+
+        summary.appendChild(item);
+
+    });
+
+}
+
+
+function startLearning() {
+
+    alert(
+        "Your personalized learning experience is ready!"
+    );
+
+    // Later, replace this with your actual app/dashboard page.
+    // window.location.href = "dashboard.html";
+
+}
+
+</script>
+
+</body>
+</html>

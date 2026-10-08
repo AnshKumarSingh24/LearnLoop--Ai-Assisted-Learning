@@ -1,0 +1,905 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+ <meta charset="UTF-8">
+ <meta name="viewport" content="width=device-width, initial-scale=1.0">
+ <title>CAPTURE | Context Intelligence Platform</title>
+ <link rel="stylesheet" href="style.css">
+ <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Playfair+Display:ital,wght@0,600;1,600&display=swap" rel="stylesheet">
+ <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+ <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    :root {
+      /* Base Dark Theme (Notion Style) */
+      --bg-dark: #191919;
+      --bg-card: #202020;
+      --bg-hover: #2F2F2F;
+      
+      --text-primary: rgba(255, 255, 255, 0.9);
+      --text-secondary: rgba(255, 255, 255, 0.65);
+      --text-muted: rgba(255, 255, 255, 0.4);
+      
+      --border-subtle: rgba(255, 255, 255, 0.09);
+      --border-strong: rgba(255, 255, 255, 0.14);
+
+      /* Accent overrides to monochromatic */
+      --accent-cyan: #FFFFFF;
+      --accent-orange: #FFFFFF;
+      --accent-purple: #D4D4D4;
+    }
+
+    /* Loading Overlay Styles */
+    .global-loader {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background-color: #000000; /* Black background */
+      z-index: 99999;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      transition: opacity 0.6s cubic-bezier(0.87, 0, 0.13, 1), visibility 0.6s;
+    }
+    .global-loader.hidden {
+      opacity: 0;
+      visibility: hidden;
+    }
+    .bolt-svg {
+      width: 120px;
+      height: 120px;
+      fill: #ffffff;
+      animation: pulse-bolt 1.5s infinite ease-in-out;
+    }
+    @keyframes pulse-bolt {
+      0% { transform: scale(0.95); opacity: 0.8; }
+      50% { transform: scale(1.05); opacity: 1; filter: drop-shadow(0 0 20px rgba(255,255,255,0.6)); }
+      100% { transform: scale(0.95); opacity: 0.8; }
+    }
+    
+    /* Grid Feed Styles for Inbox */
+    .inbox-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 16px;
+      margin-top: 24px;
+    }
+    .capture-grid-card {
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      border-radius: 16px;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      cursor: pointer;
+      transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+      position: relative;
+      overflow: hidden;
+    }
+    .capture-grid-card:hover {
+      background: rgba(255, 255, 255, 0.05);
+      transform: translateY(-4px);
+      box-shadow: 0 12px 24px rgba(0,0,0,0.4), 0 0 0 1px rgba(255,255,255,0.1);
+    }
+    .capture-grid-card::before {
+      content: "";
+      position: absolute;
+      top: 0; left: 0; right: 0; height: 100%;
+      background: linear-gradient(180deg, rgba(255,255,255,0.03) 0%, transparent 100%);
+      pointer-events: none;
+    }
+  </style>
+</head>
+<body>
+  <!-- Groq Style Loading Overlay -->
+  <div id="global-loader" class="global-loader">
+    <svg class="bolt-svg" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+      <path d="M13 2L3 14H12L11 22L21 10H12L13 2Z"/>
+    </svg>
+  </div>
+
+  <script>
+    // Hide loader after a short delay
+    window.addEventListener('load', () => {
+      setTimeout(() => {
+        document.getElementById('global-loader').classList.add('hidden');
+      }, 800);
+    });
+  </script>
+
+ <div class="app-layout">
+  
+  <!-- ═════ PRIMARY NAVIGATION (LEFT SIDEBAR) ═════ -->
+  <aside class="sidebar">
+   <div class="sidebar-top">
+    <div class="brand" onclick="switchView('inbox')">
+     <span class="brand-icon">✶</span>
+     <div class="brand-text">
+      CAPTURE<span>.</span>
+      <div class="tagline">Your scattered information, finally connected.</div>
+     </div>
+    </div>
+
+    <!-- Search Bar -->
+    <div class="search-bar" onclick="switchView('ask')">
+     <input type="text" placeholder="Deep semantic search… (⌘K)" readonly>
+    </div>
+
+    <!-- Navigation Links -->
+    <nav class="nav-group">
+     <a href="#" class="nav-item active" data-view="inbox" onclick="switchView('inbox')">
+       Home <span class="badge" id="inbox-badge">4</span>
+     </a>
+
+     <a href="#" class="nav-item" data-view="ask" onclick="switchView('ask')">
+       Ask & Semantic Search
+     </a>
+    </nav>
+
+    <!-- Spaces / Whiteboard Pages Section (Notion / Heptabase style) -->
+    <div style="display:flex;justify-content:space-between;align-items:center;padding:14px 8px 6px;">
+     <div class="section-title" style="padding:0;letter-spacing:0.08em;font-size:11px;color:var(--text-muted);">WHITEBOARD PAGES</div>
+     <button class="btn-ghost" onclick="openSmartCanvasModal()" style="font-size:11px;cursor:pointer;padding:2px 8px;color:var(--text-secondary);border-radius:4px;background:rgba(255,255,255,0.05);border:none;transition:all 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.1)';this.style.color='var(--text-primary)'" onmouseout="this.style.background='rgba(255,255,255,0.05)';this.style.color='var(--text-secondary)'" title="Create new Canvas Page">+ New Page</button>
+    </div>
+    <div class="spaces-list" id="dynamic-spaces-list">
+     <!-- Injected dynamically via JS -->
+    </div>
+   </div>
+
+   <!-- Footer -->
+   <div class="sidebar-footer">
+    <div class="user-profile">
+     <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=80&q=80" alt="Avatar">
+     <div class="user-info">
+      <div class="name">Abhinav Krish</div>
+      <div class="plan">Supermemory Context Tier</div>
+     </div>
+    </div>
+   </div>
+  </aside>
+
+  <!-- ═════ MAIN VIEWPORT ═════ -->
+  <main class="main-viewport">
+   
+   <!-- ═════ SCREEN 1: INBOX (INSTANT UNIVERSAL CAPTURE) ═════ -->
+   <section id="inbox-view" class="view-pane active">
+    <div class="pane-container">
+     <header class="pane-header">
+      <div>
+       <h1 class="typing-animation">Capture anything. Find everything later.</h1>
+      </div>
+
+      <!-- Interactive Airplane Mode / Offline Demo Switch -->
+      <div class="network-toggle-wrap">
+       <button class="btn-airplane-toggle" id="airplane-toggle-btn" onclick="toggleAirplaneMode()" title="Simulate Offline Capture Demo">
+         Airplane Mode: <strong id="airplane-status-text">OFF</strong>
+       </button>
+      </div>
+     </header>
+
+     <!-- Hive Local Queue Status Banner (Shown when offline or flushing) -->
+     <div class="hive-queue-banner" id="hive-queue-banner" style="display:none;">
+      <div class="hive-left">
+       
+       <div>
+        <strong>Local Hive Store Active (Offline Mode)</strong>
+        <p id="hive-queue-desc">Writes are queued locally in encrypted Hive storage. Will auto-sync to Supabase upon reconnect.</p>
+       </div>
+      </div>
+      <div class="hive-badge-count" id="hive-badge-count">0 pending writes</div>
+     </div>
+
+     <!-- Large Universal Capture Box -->
+     <div class="universal-capture-box" id="universal-drop-zone">
+      <textarea id="universal-input" placeholder="Type thoughts, paste links, or drag & drop any file (PDF, image, audio, doc)..."></textarea>
+      <div class="capture-actions-bar">
+       <div class="format-buttons">
+        <button class="btn btn-dark" onclick="triggerUniversalUpload()">Upload Any File</button>
+        <button class="btn btn-accent" onclick="document.getElementById('audio-upload-input').click()" style="margin-left: 8px; display: none;">Upload Audio (Whisper)</button>
+        <input type="file" id="audio-upload-input" accept="audio/*" style="display:none;" onchange="handleAudioUpload(this)">
+        <span class="drag-hint">or drop images / audio / documents</span>
+       </div>
+        <div style="display:flex;align-items:center;gap:10px;">
+         <select id="capture-space-select" class="space-picker-select">
+          <option value="Unassigned">Unassigned (Default)</option>
+          <option value="Trip to Goa">Trip to Goa</option>
+          <option value="AUTONAV Project">AUTONAV Project</option>
+          <option value="Semester 3">Semester 3</option>
+         </select>
+         <button class="btn btn-accent" onclick="submitUniversalCapture()" style="background:var(--text-primary);color:var(--bg-dark);font-weight:600;">Instant Ingest</button>
+        </div>
+      </div>
+     </div>
+
+     <!-- Dynamic AI Extracted Entity Filter Bar -->
+     <div class="dynamic-entity-filter-bar">
+      <span class="filter-lbl"> AI Extracted Entities:</span>
+      <div class="entity-pills-row" id="dynamic-entity-pills">
+       <!-- Dynamically populated from Groq extracted entities -->
+      </div>
+     </div>
+
+     <!-- Capture Feed Stack -->
+     <div style="display:flex;justify-content:space-between;align-items:center;margin: 18px 0 12px;">
+      <h3 class="section-title-bold" style="margin:0;">Recent Captures Feed</h3>
+      <span id="active-filter-indicator" style="font-size:11.5px;color:var(--accent-cyan);">Showing all captures</span>
+     </div>
+     <div class="captures-feed-stack" id="inbox-feed-stack">
+      <!-- Injected via JS -->
+     </div>
+    </div>
+   </section>
+
+   <!-- ═════ SCREEN 2: SPATIAL CANVAS + SPLIT PANE ═════ -->
+   <section id="spaces-view" class="view-pane" style="max-width:100%;padding:16px 20px 40px;height:calc(100vh - 20px);">
+    <div class="canvas-embed-wrapper" style="width:100%;height:100%;border-radius:16px;overflow:hidden;border:1px solid var(--border-subtle);box-shadow:0 12px 40px rgba(0,0,0,0.6); display:flex;">
+     
+      <!-- Column 1: Spatial Canvas -->
+      <div id="canvas-container" style="flex:1; position:relative; overflow:hidden; background: var(--bg-canvas);">
+        <canvas id="edge-canvas" width="4000" height="4000" style="position:absolute; top:0; left:0; pointer-events:none;"></canvas>
+        <div id="node-layer" style="position:absolute; top:0; left:0; width:100%; height:100%;"></div>
+      </div>
+
+      <!-- Column 2: Media Viewer (Hidden by default) -->
+      <div class="media-side-panel" id="media-side-panel" style="width:350px; border-left: 1px solid var(--border-subtle); display:none; flex-direction:column; background:#000;">
+          <div id="media-content" style="width:100%; height:100%; display:flex; align-items:center; justify-content:center; color:white; font-size:12px;">
+             No media available for this node.
+          </div>
+      </div>
+
+      <!-- Column 3: Rich Block Editor (Hidden by default) -->
+      <div class="editor-side-panel" id="editor-side-panel" style="width:400px; border-left: 1px solid var(--border-subtle); display:none; flex-direction:column; background:var(--bg-card); position:relative;">
+          <div class="write-inner" style="flex:1; padding:24px; overflow-y:auto; position:relative;">
+              <input type="text" class="note-title-input" id="note-title" placeholder="Untitled Note..." oninput="onTitleChange()" style="width: 100%; background: transparent; border: none; outline: none; font-family: 'Playfair Display', serif; font-size: 32px; color: var(--text-primary); margin-bottom: 12px;">
+              <div class="note-meta-row" style="margin-bottom: 24px; color: var(--text-secondary); font-size: 13px; border-bottom: 1px solid var(--border-subtle); padding-bottom: 12px; display: flex; gap: 16px;">
+                <span id="meta-date">Date</span>
+                <span id="meta-wc">0 words</span>
+              </div>
+              <div id="editor" contenteditable="true" spellcheck="false" data-placeholder="Start writing... type / for commands" style="min-height: 400px; font-size: 15px; line-height: 1.7; outline: none;"></div>
+          </div>
+          
+          <!-- Format Bar -->
+          <div class="fmt-bar" id="fmt-bar" style="position: absolute; z-index: 300; background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: 8px; padding: 4px; display: flex; gap: 2px; opacity: 0; pointer-events: none; transition: 0.2s; box-shadow: 0 8px 24px rgba(0,0,0,0.5);">
+            <button class="fb-btn" onclick="fmt('bold')" style="background: transparent; border: none; color: var(--text-primary); cursor: pointer; padding: 6px 10px; border-radius: 4px;"><b>B</b></button>
+            <button class="fb-btn" onclick="fmt('italic')" style="background: transparent; border: none; color: var(--text-primary); cursor: pointer; padding: 6px 10px; border-radius: 4px;"><i>I</i></button>
+            <button class="fb-btn" onclick="fmt('underline')" style="background: transparent; border: none; color: var(--text-primary); cursor: pointer; padding: 6px 10px; border-radius: 4px; text-decoration:underline">U</button>
+            <button class="fb-btn" onclick="fmt('strikeThrough')" style="background: transparent; border: none; color: var(--text-primary); cursor: pointer; padding: 6px 10px; border-radius: 4px;"><s>S</s></button>
+            <div style="width:1px; background:var(--border-subtle); margin:0 4px;"></div>
+            <button class="fb-btn" onclick="fmtBlock('h1')" style="background: transparent; border: none; color: var(--text-primary); cursor: pointer; padding: 6px 10px; border-radius: 4px;">H1</button>
+            <button class="fb-btn" onclick="fmtBlock('h2')" style="background: transparent; border: none; color: var(--text-primary); cursor: pointer; padding: 6px 10px; border-radius: 4px;">H2</button>
+            <button class="fb-btn" onclick="fmtBlock('h3')" style="background: transparent; border: none; color: var(--text-primary); cursor: pointer; padding: 6px 10px; border-radius: 4px;">H3</button>
+          </div>
+
+          <!-- Slash Menu -->
+          <div class="slash-menu" id="slash-menu" style="position: absolute; z-index: 400; background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: 8px; width: 240px; display: none; padding: 8px; box-shadow: 0 8px 24px rgba(0,0,0,0.5);">
+            <input type="text" class="slash-search" id="slash-search" placeholder="Search blocks..." oninput="filterSlash(this.value)" style="width: 100%; background: var(--bg-canvas); border: 1px solid var(--border-subtle); color: var(--text-primary); padding: 8px; border-radius: 4px; margin-bottom: 8px; outline:none;">
+            <div id="slash-list"></div>
+          </div>
+      </div>
+
+    </div>
+   </section>
+
+   <!-- ═════ SCREEN 5: CONTRADICTION REVIEW ═════ -->
+   <section id="contradictions-view" class="view-pane">
+    <div class="pane-container">
+     <header class="pane-header">
+      <div>
+       <span class="pill pill-orange" style="margin-bottom:8px;display:inline-block;">CONTRADICTION ARBITER</span>
+       <h1>Cross-Source Fact Collision Engine</h1>
+       <p class="subtitle">Scans independent multimodal captures in real-time to surface conflicting dates, budgets, or superseded requirements.</p>
+      </div>
+      <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+       <div class="dropdown" style="position:relative;display:inline-block;">
+        <button class="btn btn-outline" style="display:flex;align-items:center;gap:6px;" onclick="toggleInjectDropdown()">
+         <span>+ Inject Test Conflict ▾</span>
+        </button>
+        <div id="inject-dropdown-menu" style="display:none;position:absolute;right:0;top:100%;margin-top:6px;background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:6px;padding:6px;min-width:240px;box-shadow:0 4px 12px rgba(0,0,0,0.3);z-index:100;">
+         <button onclick="injectSpecificConflict('lodging')" style="width:100%;text-align:left;background:transparent;border:none;color:var(--text-primary);padding:8px 10px;font-size:12px;border-radius:4px;cursor:pointer;" onmouseover="this.style.background='rgba(255,255,255,0.06)'" onmouseout="this.style.background='transparent'">Lodging Date Collision (Oct 13 vs 14)</button>
+         <button onclick="injectSpecificConflict('flight_time')" style="width:100%;text-align:left;background:transparent;border:none;color:var(--text-primary);padding:8px 10px;font-size:12px;border-radius:4px;cursor:pointer;" onmouseover="this.style.background='rgba(255,255,255,0.06)'" onmouseout="this.style.background='transparent'">Flight Time Collision (08:30 AM vs 06:15 PM)</button>
+         <button onclick="injectSpecificConflict('budget')" style="width:100%;text-align:left;background:transparent;border:none;color:var(--text-primary);padding:8px 10px;font-size:12px;border-radius:4px;cursor:pointer;" onmouseover="this.style.background='rgba(255,255,255,0.06)'" onmouseout="this.style.background='transparent'">Cash Budget Surge (₹15,000 vs ₹28,000)</button>
+         <button onclick="injectSpecificConflict('scooter')" style="width:100%;text-align:left;background:transparent;border:none;color:var(--text-primary);padding:8px 10px;font-size:12px;border-radius:4px;cursor:pointer;" onmouseover="this.style.background='rgba(255,255,255,0.06)'" onmouseout="this.style.background='transparent'">Scooter Vendor Location (Dabolim vs Panjim)</button>
+         <div style="height:1px;background:var(--border-subtle);margin:4px 0;"></div>
+         <button onclick="injectAllConflicts()" style="width:100%;text-align:left;background:rgba(255,255,255,0.1);border:none;color:var(--text-primary);padding:8px 10px;font-size:12px;border-radius:4px;cursor:pointer;font-weight:600;">Inject All 4 Collisions</button>
+        </div>
+       </div>
+       <button class="btn btn-accent" id="btn-scan-contradictions" onclick="runDynamicContradictionScan()" style="background:var(--text-primary);color:var(--bg-dark);font-weight:600;">Run Dynamic Scan</button>
+      </div>
+     </header>
+
+     <!-- Dynamic Contradiction Cards Stack -->
+     <div id="dynamic-contradictions-container">
+      <!-- Side-by-Side Comparison Interface -->
+      <div class="contradiction-comparison-card" id="active-contradiction-box">
+       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+        <span class="pill pill-orange">HIGH SEVERITY · SCHEDULE COLLISION</span>
+        <span style="font-family:var(--font-mono);font-size:11px;color:var(--text-muted);" id="conflict-space-tag">Space: "Trip to Goa"</span>
+       </div>
+       
+       <div class="sources-side-by-side">
+        <!-- Source A -->
+        <div class="source-column left-source">
+         <div class="source-header">
+          <span class="pill pill-orange">Source A · PDF Ticket</span>
+          <span class="date">Captured Aug 28, 2026</span>
+         </div>
+         <h4 class="source-title">Flight Confirmation PDF (Air India)</h4>
+         <div class="source-content-box">
+          <p>Flight AI-842 · Booking: AI924X</p>
+          <div class="highlight-conflict">Flight departure: October 12, 08:30 AM</div>
+          <p>Passenger: Abhinav Krish + 2 guests</p>
+         </div>
+        </div>
+
+        <!-- Center VS -->
+        <div class="center-vs-divider">
+         <div class="vs-circle">VS</div>
+        </div>
+
+        <!-- Source B -->
+        <div class="source-column right-source">
+         <div class="source-header">
+          <span class="pill pill-violet">Source B · WhatsApp Screenshot</span>
+          <span class="date">Captured Aug 30, 2026</span>
+         </div>
+         <h4 class="source-title">Group Chat Screenshot</h4>
+         <div class="source-content-box">
+          <p>Priya: "Hey guys, rescheduled our tickets to avoid college lab conflict."</p>
+          <div class="highlight-conflict">Flight departs on October 13, 08:30 AM</div>
+          <p>"Taj check-in confirmed for 13th afternoon."</p>
+         </div>
+        </div>
+       </div>
+
+       <!-- AI Analysis -->
+       <div class="contradiction-ai-analysis">
+        <strong>Analysis:</strong> Both sources refer to Air India AI-842 departing BLR to GOI, but provide different departure dates (October 12 vs October 13). Source B is +2 days newer and corroborated by hotel check-in.
+       </div>
+
+       <!-- Actions -->
+       <div class="contradiction-action-row">
+        <button class="btn btn-outline" onclick="resolveContradiction('Source A (Oct 12)')">Mark Source A Correct (Oct 12)</button>
+        <button class="btn btn-accent" onclick="resolveContradiction('Source B (Oct 13)')">Mark Source B Correct (Oct 13)</button>
+        <button class="btn btn-dark" onclick="resolveContradiction('Keep Both')">Keep Both</button>
+        <button class="btn btn-ghost" onclick="resolveContradiction('Dismiss')">Dismiss</button>
+       </div>
+      </div>
+     </div>
+
+    </div>
+   </section>
+
+   <!-- ═════ SCREEN 6: ASK & DEEP SEMANTIC SUB-SECTION SEARCH ═════ -->
+   <section id="ask-view" class="view-pane">
+    <div class="pane-container">
+     <header class="pane-header">
+      <div>
+       <span class="pill pill-cyan" style="margin-bottom:8px;display:inline-block;">DEEP SEMANTIC RETRIEVAL</span>
+       <h1>Ask your memory.</h1>
+       <p class="subtitle">Search by concept and fuzzy memory. Searches inside exact paragraphs and audio transcripts with minimum sufficient context.</p>
+      </div>
+     </header>
+
+     <!-- Ask Input Box with Direct Voice Transcription -->
+     <div class="ask-search-box">
+      <input type="text" id="ask-query-input" placeholder="Ask what you remember (or speak via microphone)..." value="What date am I actually leaving for Goa?" onkeydown="if(event.key==='Enter')executeAskCapture()">
+      <button class="btn btn-accent" onclick="executeAskCapture()">Search Memory</button>
+     </div>
+
+     <!-- Quick Conceptual Prompts -->
+     <div class="quick-prompts-row">
+      <span class="lbl">Try:</span>
+      <button class="prompt-chip" onclick="setAndRunPrompt('What date am I actually leaving for Goa?')">What date am I leaving for Goa?</button>
+      <button class="prompt-chip" onclick="setAndRunPrompt('How much cash do we need for bikes and beach shacks?')">How much cash for bikes & shacks?</button>
+      <button class="prompt-chip" onclick="setAndRunPrompt('Where are we staying in South Goa and for how many nights?')">Where are we staying in South Goa?</button>
+      <button class="prompt-chip" onclick="setAndRunPrompt('Find conflicting deadlines in my captures.')">Find conflicting deadlines</button>
+     </div>
+
+     <!-- Answer & Telemetry Output -->
+     <div id="ask-result-container" style="display:none;margin-top:24px;">
+      
+      <!-- Result Card -->
+      <div class="ask-answer-card">
+       <div class="answer-header">
+        <span class="source-tag">GROUNDED CONTEXT SYNTHESIS (SUB-SECTION MATCHED)</span>
+        <span class="latency" id="ask-latency">Groq openai/gpt-oss-20b · 140ms</span>
+       </div>
+       
+       <div class="answer-body-text" id="ask-answer-text">
+        <!-- Injected via JS -->
+       </div>
+
+       <!-- Dynamically Matched Sub-Sections & Direct Document Cards -->
+       <div class="matched-docs-section-title">DIRECTLY MATCHED DOCUMENTS & EXCERPTS:</div>
+       <div class="matched-snippets-container" id="matched-snippets-box">
+        <!-- Injected dynamically via JS with 1-click open -->
+       </div>
+
+       <!-- Dynamic Sources Used Strip -->
+       <div class="sources-used-strip" id="sources-used-strip">
+        <!-- Injected dynamically via JS -->
+       </div>
+      </div>
+
+      <!-- Context Efficiency Badge (VIT Chennai PS2 Requirement) -->
+      <div class="context-efficiency-banner">
+       <div class="eff-left">
+        <div class="big-percent" id="eff-percent">95.2%</div>
+        <div class="eff-label">LESS CONTEXT SUPPLIED TO LLM</div>
+       </div>
+       <div class="eff-stats">
+        <div>Space Token Size: <strong>14,200 tokens</strong></div>
+        <div>Narrowed Sub-Sections: <strong>4 relevant fragments</strong></div>
+        <div>Minimum Context Sent: <strong>680 tokens</strong></div>
+        <div>Estimated Cost Saved: <strong>$0.18 / query</strong></div>
+       </div>
+      </div>
+
+      <!-- Closed-Loop Learning & Tuning Queue Widget -->
+      <div id="learning-loop-telemetry" style="margin-top:14px;padding:10px 14px;background:rgba(6,182,212,0.06);border:1px solid rgba(6,182,212,0.2);border-radius:8px;display:flex;justify-content:space-between;align-items:center;font-size:11px;">
+       <div style="display:flex;align-items:center;gap:8px;">
+        <span class="pill pill-cyan" style="font-size:10px;padding:2px 8px;">CLOSED-LOOP ACTIVE</span>
+        <span style="color:var(--text-main);">Reinforcement Tuning: <strong id="tuning-events-count">0 events</strong></span>
+       </div>
+       <div style="color:var(--text-muted);">
+        Positive Reinforcement Rate: <strong style="color:var(--accent-green);" id="tuning-pos-rate">100%</strong> · Adaptive Weights Online
+       </div>
+      </div>
+
+     </div>
+    </div>
+   </section>
+
+   <!-- ═════ SCREEN 7: MCP SERVER & MULTI-PLATFORM SYNC HUB ═════ -->
+   <section id="mcp-view" class="view-pane">
+    <div class="pane-container" style="max-width:1400px;margin:0 auto;padding:0 24px 40px;">
+     
+     <!-- Pane Header -->
+     <header class="pane-header" style="margin-bottom:18px;display:flex;justify-content:space-between;align-items:flex-end;">
+      <div>
+       <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
+        <span class="pill pill-green">MODEL CONTEXT PROTOCOL (MCP)</span>
+        <span class="pill pill-cyan">v4.0.0 ORCHESTRATOR</span>
+        <span style="font-family:var(--font-mono);font-size:11px;color:var(--text-muted);">JSON-RPC 2.0 stdio & HTTP</span>
+       </div>
+       <h1 style="font-size:24px;font-weight:700;margin:0 0 4px;">MCP Connection & Topology Hub</h1>
+       <p class="subtitle" style="margin:0;">Inspect live MCP server topology, AI agent bindings, and downstream context stores. Run real queries against the backend context engine.</p>
+      </div>
+      <div style="display:flex;gap:8px;">
+       <button class="mcp-ctrl-btn" style="border-color:var(--accent-purple);color:var(--accent-purple);" onclick="pullGitHubDataMCP()">Pull GitHub (MCP)</button>
+       <button class="mcp-ctrl-btn" style="border-color:var(--accent-orange);color:var(--accent-orange);" onclick="pullLinearDataMCP()">Pull Linear (MCP)</button>
+       <button class="mcp-ctrl-btn" style="border-color:var(--accent-cyan);color:var(--accent-cyan);" onclick="pullKaggleDataMCP()">Pull Kaggle DB (MCP)</button>
+       <button class="mcp-ctrl-btn primary" id="mcp-play-btn" onclick="playLiveMCPSimulation()">Run Live Demo</button>
+      </div>
+     </header>
+
+     <!-- ═════ 1. CONNECTION TOPOLOGY DASHBOARD (WEPPY / NAGIOS STYLE) ═════ -->
+     <div class="mcp-dash-container">
+      <div class="mcp-topology-card">
+       <div class="mcp-topo-header">
+        <div class="mcp-topo-title">
+         <span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#06b6d4;box-shadow:0 0 8px #06b6d4;"></span>
+         CONNECTION TOPOLOGY
+        </div>
+        <div style="display:flex;gap:12px;font-family:var(--font-mono);font-size:11px;color:var(--text-muted);">
+         <span>Project Root: <code style="color:#fff;">/capture/core-context-engine</code></span>
+         <span>Session: <strong style="color:var(--accent-cyan);">D6FF-A0A-2026</strong></span>
+        </div>
+       </div>
+
+       <!-- 3-Column Topology Diagram -->
+       <div class="mcp-topology-grid">
+        
+        <!-- Left: AI Agent Clients -->
+        <div class="mcp-topo-col">
+         <div class="mcp-col-title">
+          <span>AI AGENT CLIENTS</span>
+          <span style="font-size:10px;color:var(--accent-cyan);">4 Attached</span>
+         </div>
+
+         <div class="mcp-node-box">
+          <div class="mcp-node-top">
+           <span class="mcp-node-name"><span></span> cursor-mcp-client</span>
+           <span class="mcp-node-badge">● Active</span>
+          </div>
+          <div class="mcp-node-meta">
+           <span>Transport: stdio</span>
+           <span>Last: 2s ago</span>
+          </div>
+         </div>
+
+         <div class="mcp-node-box">
+          <div class="mcp-node-top">
+           <span class="mcp-node-name"><span></span> claude-code-agent</span>
+           <span class="mcp-node-badge">● Active</span>
+          </div>
+          <div class="mcp-node-meta">
+           <span>Transport: SSE Stream</span>
+           <span>Last: 5s ago</span>
+          </div>
+         </div>
+
+         <div class="mcp-node-box">
+          <div class="mcp-node-top">
+           <span class="mcp-node-name"><span></span> windsurf-cascade</span>
+           <span class="mcp-node-badge">● Active</span>
+          </div>
+          <div class="mcp-node-meta">
+           <span>Transport: stdio JSON-RPC</span>
+           <span>Last: 12s ago</span>
+          </div>
+         </div>
+
+         <div class="mcp-node-box">
+          <div class="mcp-node-top">
+           <span class="mcp-node-name"><span>⚡</span> multi-agent-swarm</span>
+           <span class="mcp-node-badge">● Active</span>
+          </div>
+          <div class="mcp-node-meta">
+           <span>Transport: HTTP /mcp</span>
+           <span>Last: 1s ago</span>
+          </div>
+         </div>
+        </div>
+
+        <!-- Center: Master MCP Server Hub -->
+        <div class="mcp-server-hub">
+         <div class="mcp-hub-pulse-ring"></div>
+         <div class="mcp-hub-icon-wrap">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+           <rect x="2" y="2" width="20" height="8" rx="2" ry="2"></rect>
+           <rect x="2" y="14" width="20" height="8" rx="2" ry="2"></rect>
+           <line x1="6" y1="6" x2="6.01" y2="6"></line>
+           <line x1="6" y1="18" x2="6.01" y2="18"></line>
+          </svg>
+         </div>
+         <div class="mcp-hub-title">CAPTURE MCP SERVER</div>
+         <div class="mcp-hub-status-row">
+          <span style="display:inline-flex;align-items:center;gap:4px;font-family:var(--font-mono);font-size:11px;color:#10B981;">
+           <span style="width:7px;height:7px;border-radius:50%;background:#10B981;box-shadow:0 0 6px #10B981;"></span> Online
+          </span>
+          <span class="mcp-hub-pill">v4.0.0-orchestrator</span>
+          <span class="mcp-hub-pill" style="border-color:rgba(6,182,212,0.3);color:var(--accent-cyan);">Automatic: Recent Priority</span>
+         </div>
+         <div style="font-family:var(--font-mono);font-size:11px;color:var(--text-muted);margin-bottom:8px;">
+          Endpoint: <code style="color:#fff;">POST http://localhost:8000/mcp</code>
+         </div>
+         <div style="display:flex;gap:14px;font-family:var(--font-mono);font-size:10.5px;color:var(--text-secondary);">
+          <span>Latency: <strong style="color:#10B981;">9.4 ms</strong></span>
+          <span>PID: <strong style="color:#fff;">21565</strong></span>
+          <span>Uptime: <strong id="mcp-uptime-display" style="color:#fff;">02:44:18</strong></span>
+         </div>
+         <div class="mcp-hub-btn-row">
+          <button class="mcp-hub-btn" onclick="pingMCPServer()">Ping Server</button>
+          <button class="mcp-hub-btn" onclick="copyMCPConfigSnippet()">Copy Config</button>
+         </div>
+        </div>
+
+        <!-- Right: Downstream Storage Targets -->
+        <div class="mcp-topo-col">
+         <div class="mcp-col-title">
+          <span>MEMORY & TARGETS</span>
+          <span style="font-size:10px;color:#10B981;">3 Synchronized</span>
+         </div>
+
+         <div class="mcp-node-box">
+          <div class="mcp-node-top">
+           <span class="mcp-node-name"><span></span> LocalContextDB</span>
+           <span class="mcp-node-badge">● Synced</span>
+          </div>
+          <div class="mcp-node-meta">
+           <span>1,205 Kaggle + Notes</span>
+           <span>In-Memory SQLite</span>
+          </div>
+         </div>
+
+         <div class="mcp-node-box">
+          <div class="mcp-node-top">
+           <span class="mcp-node-name"><span>⚡</span> Supabase Postgres</span>
+           <span class="mcp-node-badge">● Connected</span>
+          </div>
+          <div class="mcp-node-meta">
+           <span>RLS Enabled</span>
+           <span>Vector HNSW</span>
+          </div>
+         </div>
+
+         <div class="mcp-node-box">
+          <div class="mcp-node-top">
+           <span class="mcp-node-name"><span></span> Entity Knowledge Graph</span>
+           <span class="mcp-node-badge">● Indexed</span>
+          </div>
+          <div class="mcp-node-meta">
+           <span>2,840 Triples</span>
+           <span>Coreference Active</span>
+          </div>
+         </div>
+        </div>
+
+       </div>
+      </div>
+
+      <!-- Telemetry Mini Cards (Nagios Metric Grid) -->
+      <div class="mcp-telemetry-row">
+       <div class="mcp-tel-card">
+        <span class="mcp-tel-lbl">Server Connectivity</span>
+        <span class="mcp-tel-val" style="color:#10B981;">99.98%</span>
+        <span class="mcp-tel-foot">
+         <span style="color:#10B981;">●</span> Zero downtime recorded (Last 24h)
+        </span>
+       </div>
+       <div class="mcp-tel-card">
+        <span class="mcp-tel-lbl">Tool Dispatches</span>
+        <span class="mcp-tel-val" id="mcp-total-dispatches-val">3,842</span>
+        <span class="mcp-tel-foot">
+         <span style="color:var(--accent-cyan);">↑ 14.2%</span> query volume increase
+        </span>
+       </div>
+       <div class="mcp-tel-card">
+        <span class="mcp-tel-lbl">Token Compression</span>
+        <span class="mcp-tel-val" style="color:var(--accent-cyan);">84.6%</span>
+        <span class="mcp-tel-foot">
+         <span>Avg 3,420 → 412 tokens per pack</span>
+        </span>
+       </div>
+       <div class="mcp-tel-card">
+        <span class="mcp-tel-lbl">Authority Gating</span>
+        <span class="mcp-tel-val" style="color:var(--accent-orange);">100% Verified</span>
+        <span class="mcp-tel-foot">
+         <span>Tier 1 primary truth enforced</span>
+        </span>
+       </div>
+      </div>
+     </div>
+
+     <!-- ═════ 2. LIVE INTERACTIVE MCP WORKSPACE & SIMULATION SUITE ═════ -->
+     <div style="margin: 28px 0 12px;display:flex;justify-content:space-between;align-items:center;">
+      <h3 class="section-title-bold" style="margin:0;font-size:16px;">Interactive MCP Query & Context Assembly Demo</h3>
+      <span style="font-family:var(--font-mono);font-size:11px;color:var(--text-muted);">Real Backend JSON-RPC Tool Execution (`get_context_pack`)</span>
+     </div>
+
+     <div class="mcp-sim-container">
+      <!-- Topbar -->
+      <div class="mcp-topbar">
+       <div class="mcp-brand-tag">
+        <span class="mcp-brand-badge">MCP</span>
+        <span>CAPTURE CONTEXT WORKSPACE</span>
+       </div>
+       <div style="display:flex;gap:6px;margin-left:auto;align-items:center;">
+        <span style="font-family:var(--font-mono);font-size:10px;color:var(--text-muted);">Presets:</span>
+        <button class="mcp-ctrl-btn" style="font-size:11px;padding:4px 9px;" onclick="runPresetMCPQuery('What date am I actually leaving for Goa?')">Flight Date</button>
+        <button class="mcp-ctrl-btn" style="font-size:11px;padding:4px 9px;" onclick="runPresetMCPQuery('What is the Goa hotel reservation budget and booking details?')">Hotel Budget</button>
+        <button class="mcp-ctrl-btn" style="font-size:11px;padding:4px 9px;" onclick="runPresetMCPQuery('Show all AUTONAV project code changes and release milestones')">AUTONAV Repo</button>
+        <button class="mcp-ctrl-btn" id="mcp-reset-btn" onclick="resetMCPSimulation()">Reset Feed</button>
+       </div>
+      </div>
+
+      <!-- Split 2-Pane View -->
+      <div class="mcp-split-view">
+       <!-- Left: External MCP Client -->
+       <div class="mcp-pane">
+        <div class="mcp-pane-header">
+         <span class="pill pill-violet" style="font-size:9px;padding:2px 6px;">CLIENT</span>
+         <span class="mcp-pane-title">MCP CLIENT — CURSOR / CLAUDE CODE</span>
+         <span style="margin-left:auto;font-family:var(--font-mono);font-size:9px;color:var(--text-muted);">Protocol: JSON-RPC 2.0</span>
+        </div>
+        <div class="mcp-client-feed" id="mcp-client-feed">
+         <div style="font-family:var(--font-mono);font-size:11px;color:var(--text-muted);text-align:center;padding:40px 20px;">
+          Type a custom query below or click any preset above to execute a real MCP tool dispatch against the live database!
+         </div>
+        </div>
+        <!-- Interactive Custom MCP Query Input Bar -->
+        <div style="padding:10px 12px;background:#0a0a0a;border-top:1px solid rgba(255,255,255,0.08);display:flex;gap:8px;align-items:center;">
+         <input type="text" id="mcp-custom-query-input" placeholder="Ask MCP Server anything (e.g. 'What date am I leaving for Goa?', 'Check budget')..." style="flex:1;background:#141414;border:1px solid rgba(255,255,255,0.12);border-radius:6px;padding:8px 12px;color:#fff;font-family:var(--font-body);font-size:12px;outline:none;" onkeydown="if(event.key==='Enter')executeCustomMCPQuery()">
+         <button class="mcp-ctrl-btn primary" onclick="executeCustomMCPQuery()" style="white-space:nowrap;padding:7px 14px;font-weight:600;">Query MCP ➔</button>
+        </div>
+       </div>
+
+       <!-- Right: Capture Live Space & Output Inspector -->
+       <div class="mcp-pane">
+        <div class="mcp-pane-header">
+         <span class="pill pill-orange" style="font-size:9px;padding:2px 6px;">CONTEXT PACK</span>
+         <span class="mcp-pane-title">CAPTURE ORCHESTRATOR — ASSEMBLED CONTEXT</span>
+         <span id="mcp-space-badge" style="margin-left:auto;font-family:var(--font-mono);font-size:9px;color:var(--accent-green);">1,205 memory items indexed</span>
+        </div>
+        <div class="mcp-space-feed" id="mcp-space-feed">
+         <div style="font-family:var(--font-serif);font-size:18px;margin-bottom:2px;color:var(--text-primary);" id="mcp-space-title">Trip to Goa</div>
+         <div style="font-family:var(--font-mono);font-size:10px;color:var(--text-muted);margin-bottom:14px;" id="mcp-space-meta">Ready for live MCP tool invocations</div>
+         <div id="mcp-empty-hint" style="font-family:var(--font-mono);font-size:11px;color:var(--text-muted);text-align:center;padding:40px 20px;">
+          Waiting for MCP client to query Capture orchestrator...
+         </div>
+        </div>
+       </div>
+      </div>
+
+      <!-- Bottom: Tool Call Console -->
+      <div class="mcp-console" id="mcp-console">
+       <div class="mcp-console-header" onclick="toggleMCPConsole()">
+        <span style="font-family:var(--font-mono);font-size:10.5px;color:var(--text-secondary);font-weight:600;">JSON-RPC 2.0 PROTOCOL STREAM</span>
+        <span id="mcp-console-count" style="font-family:var(--font-mono);font-size:9px;color:var(--accent-orange);background:rgba(232,89,60,0.15);padding:1px 6px;border-radius:10px;">0</span>
+        <span id="mcp-console-toggle-txt" style="margin-left:auto;font-family:var(--font-mono);font-size:10px;color:var(--text-muted);">▾ collapse</span>
+       </div>
+       <div class="mcp-console-body" id="mcp-console-body">
+        <div style="color:var(--text-muted);font-family:var(--font-mono);font-size:10.5px;">No active RPC calls. Enter a query or click "Run Live Demo" to dispatch real JSON-RPC packets.</div>
+       </div>
+      </div>
+     </div>
+
+    </div>
+   </section>
+
+   <!-- ═════ SCREEN 8: ANALYTICS & METRICS ═════ -->
+   <section id="analytics-view" class="view-pane" style="background:#000;">
+    <div class="pane-container" style="max-width:1400px;margin:0 auto;padding:24px;">
+     <header class="pane-header" style="border-bottom:1px solid rgba(255,255,255,0.08);padding-bottom:16px;margin-bottom:24px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;">
+       <h1>Metrics Dashboard</h1>
+       <div style="display:flex;gap:12px;">
+         <span style="font-size:12px;color:var(--text-muted);background:#1a1a1a;padding:6px 12px;border-radius:4px;border:1px solid rgba(255,255,255,0.1);">Show Limits: <strong style="color:#fff;">ON</strong></span>
+         <span style="font-size:12px;color:var(--text-muted);background:#1a1a1a;padding:6px 12px;border-radius:4px;border:1px solid rgba(255,255,255,0.1);">Last 30 minutes</span>
+       </div>
+      </div>
+     </header>
+
+     <!-- Top KPI Row -->
+     <div style="display:grid;grid-template-columns:repeat(3, 1fr);gap:16px;margin-bottom:24px;">
+       <div class="summary-card" style="background:#141414;border:1px solid rgba(255,255,255,0.08);padding:16px;border-radius:8px;">
+         <div style="font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;">Total Spent (Est.)</div>
+         <div id="analytics-total-spent" style="font-size:24px;font-weight:600;font-family:var(--font-mono);color:#fff;">$0.00 USD</div>
+       </div>
+       <div class="summary-card" style="background:#141414;border:1px solid rgba(255,255,255,0.08);padding:16px;border-radius:8px;">
+         <div style="font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;">Context Tokens Prevented</div>
+         <div id="analytics-naive-total" style="font-size:24px;font-weight:600;font-family:var(--font-mono);color:#10b981;">0</div>
+       </div>
+       <div class="summary-card" style="background:#141414;border:1px solid rgba(255,255,255,0.08);padding:16px;border-radius:8px;">
+         <div style="font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;">Average Token Reduction</div>
+         <div id="analytics-reduction-avg" style="font-size:24px;font-weight:600;font-family:var(--font-mono);color:var(--text-primary);">0%</div>
+       </div>
+     </div>
+
+     <!-- Charts Grid Row (2 Columns) -->
+     <div style="display:grid;grid-template-columns:repeat(2, 1fr);gap:16px;margin-bottom:24px;">
+       <!-- Requests Chart -->
+       <div style="background:#141414;border:1px solid rgba(255,255,255,0.08);padding:16px;border-radius:8px;">
+         <div style="font-size:13px;color:#fff;margin-bottom:16px;display:flex;justify-content:space-between;">
+           <span>Requests</span>
+           <span style="font-size:10px;color:#e8593c;">Rate Limit: 30/min</span>
+         </div>
+         <div style="height:200px;">
+           <canvas id="chartRequests"></canvas>
+         </div>
+       </div>
+
+       <!-- Total Tokens Chart -->
+       <div style="background:#141414;border:1px solid rgba(255,255,255,0.08);padding:16px;border-radius:8px;">
+         <div style="font-size:13px;color:#fff;margin-bottom:16px;display:flex;justify-content:space-between;">
+           <span>Total Tokens (Context Reduction)</span>
+           <span style="font-size:10px;color:#e8593c;">Rate Limit: 8K/min</span>
+         </div>
+         <div style="height:200px;">
+           <canvas id="chartTokens"></canvas>
+         </div>
+       </div>
+     </div>
+
+     <!-- Logs Table -->
+     <div style="background:#141414;border:1px solid rgba(255,255,255,0.08);padding:16px;border-radius:8px;">
+       <div style="font-size:13px;color:#fff;margin-bottom:16px;">Request Logs</div>
+       <table style="width:100%;border-collapse:collapse;font-family:var(--font-mono);font-size:11px;color:var(--text-muted);text-align:left;">
+         <thead>
+           <tr style="border-bottom:1px solid rgba(255,255,255,0.08);">
+             <th style="padding:8px 4px;font-weight:500;">REQUEST TIME</th>
+             <th style="padding:8px 4px;font-weight:500;">MODEL</th>
+             <th style="padding:8px 4px;font-weight:500;">CODE</th>
+             <th style="padding:8px 4px;font-weight:500;">LATENCY</th>
+             <th style="padding:8px 4px;font-weight:500;">IN TOKENS</th>
+             <th style="padding:8px 4px;font-weight:500;">OUT TOKENS</th>
+             <th style="padding:8px 4px;font-weight:500;">ERROR</th>
+           </tr>
+         </thead>
+         <tbody id="analytics-logs-tbody">
+           <!-- Populated by JS -->
+         </tbody>
+       </table>
+     </div>
+
+    </div>
+   </section>
+
+  </main>
+ </div>
+
+ <!-- ═════ AMBIENT CAPTURE FLOATING OVERLAY (⌥ Space) ═════ -->
+ <div class="ambient-overlay-modal" id="ambient-overlay" onclick="if(event.target===this)closeAmbientOverlay()">
+  <div class="ambient-box">
+   <div class="ambient-top">
+    <div class="ambient-title-wrap">
+     <span class="pulse-dot-cyan"></span>
+     <span class="ambient-title">CAPTURE AMBIENT OVERLAY</span>
+    </div>
+    <kbd onclick="closeAmbientOverlay()" style="cursor:pointer;">ESC</kbd>
+   </div>
+   
+   <div class="ambient-input-wrap">
+    <textarea id="ambient-input" placeholder="Type quick thought, or grab screen context..." rows="2"></textarea>
+   </div>
+
+   <div class="ambient-actions-bar">
+    <div class="ambient-tools">
+     <button class="tool-btn-ambient active" onclick="simulateAmbientScreenOCR()">️ Screen OCR</button>
+     <button class="tool-btn-ambient" onclick="simulateAmbientClipboard()"> Grab Clipboard</button>
+    </div>
+    <button class="btn btn-accent" onclick="submitAmbientCapture()">+ Ingest to Space</button>
+   </div>
+
+   <div class="ambient-footer-hint">
+    <span>Hotkeys: <kbd>⌥ Space</kbd> to toggle · <kbd>⌘ Enter</kbd> to save</span>
+    <span style="color:var(--accent-cyan);">Synced with Heptabase Canvas & Spaces</span>
+   </div>
+  </div>
+ </div>
+
+ <!-- Hidden File Input for Image/PDF Uploads -->
+ <input type="file" id="universal-file-input" style="display:none;" onchange="handleFileUpload(event)">
+
+ <!-- Smart Canvas Creation Modal -->
+ <div class="modal-overlay" id="smart-canvas-modal" onclick="if(event.target===this)closeSmartCanvasModal()">
+  <div class="memory-modal-box">
+   <div class="modal-top">
+    <h3 style="margin:0;font-family:var(--font-mono);font-size:12px;font-weight:700;">CREATE SMART CANVAS</h3>
+    <button class="close-btn" onclick="closeSmartCanvasModal()">✕</button>
+   </div>
+   <div style="padding: 20px;">
+    <div style="margin-bottom: 15px;">
+     <label style="display:block;font-size:11px;font-family:var(--font-mono);color:var(--text-muted);margin-bottom:6px;">CANVAS TITLE</label>
+     <input type="text" id="smart-canvas-title" style="width:100%;background:var(--bg-card);border:1px solid var(--border-light);color:var(--text-primary);padding:8px 12px;border-radius:6px;font-size:13px;" placeholder="e.g. Q4 Marketing Strategy">
+    </div>
+    <div style="margin-bottom: 15px;">
+     <label style="display:block;font-size:11px;font-family:var(--font-mono);color:var(--text-muted);margin-bottom:6px;">WHAT IS IT ABOUT? (Semantic query)</label>
+     <textarea id="smart-canvas-query" style="width:100%;height:60px;background:var(--bg-card);border:1px solid var(--border-light);color:var(--text-primary);padding:8px 12px;border-radius:6px;font-size:13px;resize:none;" placeholder="e.g. Combine the new pricing model with Q3 survey feedback..."></textarea>
+    </div>
+    <button class="btn btn-outline" style="width:100%;margin-bottom:15px;cursor:pointer;" onclick="generateSmartCanvasContext()">Find Related Documents</button>
+    
+    <div id="smart-canvas-results" style="display:none;margin-bottom:15px;background:var(--bg-card);padding:10px;border-radius:6px;">
+     <label style="display:block;font-size:11px;font-family:var(--font-mono);color:var(--text-primary);font-weight:700;margin-bottom:8px;">RETRIEVED CONTEXT</label>
+     <div id="smart-canvas-docs" style="font-size:12px;color:var(--text-secondary);max-height:140px;overflow-y:auto;display:flex;flex-direction:column;gap:6px;"></div>
+    </div>
+   </div>
+   <div class="modal-footer" style="padding-top:0;">
+    <button class="btn btn-outline" onclick="closeSmartCanvasModal()">Cancel</button>
+    <button class="btn btn-primary" id="btn-create-canvas" style="display:none;margin-left:10px;" onclick="confirmCreateSmartCanvas()">Create Canvas</button>
+   </div>
+  </div>
+ </div>
+
+ <!-- Capture Detail Drawer Modal -->
+ <div class="modal-overlay" id="capture-detail-modal" onclick="if(event.target===this)closeDetailModal()">
+  <div class="memory-modal-box">
+   <div class="modal-top">
+    <span class="source-tag" id="detail-source-tag">PDF Ingest</span>
+    <button class="close-btn" onclick="closeDetailModal()">✕</button>
+   </div>
+   <h2 id="detail-title">Capture Title</h2>
+   <p class="modal-date" id="detail-meta">Space: Trip to Goa · Processed via MiniLM (384-dim)</p>
+   
+   <div style="font-size:11px;font-family:var(--font-mono);color:var(--accent-cyan);margin-bottom:6px;">EXTRACTED CONTEXT & CONTENT:</div>
+   <div class="modal-body-text" id="detail-body">Normalized content...</div>
+   
+   <div style="font-size:11px;font-family:var(--font-mono);color:var(--accent-orange);margin-bottom:6px;">RESOLVED ENTITY GRAPH:</div>
+   <div class="tags-row" id="detail-entities"></div>
+
+   <div class="modal-footer">
+    <button class="btn btn-ghost" onclick="askAboutDetail()">Ask Capture About This</button>
+    <button class="btn btn-dark" onclick="closeDetailModal()">Done</button>
+   </div>
+  </div>
+ </div>
+
+ <div id="toast-notification" style="position:fixed;bottom:20px;right:20px;background:var(--accent-blue);color:white;padding:12px 24px;border-radius:8px;font-weight:600;box-shadow:0 10px 30px rgba(0,0,0,0.5);transform:translateY(100px);opacity:0;transition:all 0.3s cubic-bezier(0.4, 0, 0.2, 1);z-index:9999;pointer-events:none;">
+  Success!
+ </div>
+
+ <script src="canvas.js"></script>
+ <script src="editor.js"></script>
+ <script src="app.js"></script>
+</body>
+</html>

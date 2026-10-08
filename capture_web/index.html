@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CAPTURE — Context Intelligence Platform</title>
+    <meta name="description" content="Capture does not store more information. It assembles the minimum sufficient, entity-resolved, contradiction-aware context required for a goal.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body class="dark-theme">
+    <div id="supermemory-app">
+        <!-- ================= TOP HEADER ================= -->
+        <header id="main-header">
+            <div class="header-left">
+                <div class="logo-group" onclick="switchView('grid')">
+                    <div class="logo-sparkle">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                            <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+                        </svg>
+                    </div>
+                    <div class="logo-text-block">
+                        <span class="logo-title">CAPTURE</span>
+                        <span class="logo-subtitle">ContextOS</span>
+                    </div>
+                </div>
+
+                <div class="space-selector-dropdown">
+                    <span class="space-icon" id="currentSpaceIcon">🌴</span>
+                    <select id="spaceSelectHeader" onchange="onHeaderSpaceChange(this.value)">
+                        <!-- Populated dynamically -->
+                    </select>
+                </div>
+            </div>
+
+            <!-- Center Navigation Tabs (Grid | Graph | Contradictions | Metrics) -->
+            <div class="header-center">
+                <div class="segmented-control">
+                    <button class="seg-btn active" data-view="grid" onclick="switchView('grid')">
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+                        <span>Grid</span>
+                    </button>
+                    <button class="seg-btn" data-view="graph" onclick="switchView('graph')">
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+                        <span>Graph</span>
+                    </button>
+                    <button class="seg-btn" data-view="contradictions" onclick="switchView('contradictions')">
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                        <span>Conflicts</span>
+                        <span class="seg-badge danger" id="conflictsBadge">1</span>
+                    </button>
+                    <button class="seg-btn" data-view="metrics" onclick="switchView('metrics')">
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+                        <span>Metrics</span>
+                    </button>
+                </div>
+            </div>
+
+            <div class="header-right">
+                <button class="add-memory-btn" onclick="openCaptureModal()">
+                    <span class="plus-icon">+</span>
+                    <span>Add capture</span>
+                    <kbd class="key-hint">C</kbd>
+                </button>
+
+                <div class="search-pill-btn" onclick="focusSearch()">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+                    <kbd class="key-hint">⌘K</kbd>
+                </div>
+
+                <button class="demo-seed-btn" onclick="seedDemoDataset()" title="Reset & load Trip to Goa demonstration">
+                    <span>🌴 Reset Demo</span>
+                </button>
+
+                <div class="user-avatar" title="Local Demo User">
+                    <img src="https://api.dicebear.com/7.x/bottts/svg?seed=CaptureDemo" alt="Avatar">
+                </div>
+            </div>
+        </header>
+
+        <!-- ================= MAIN WORKSPACE (2-COLUMN SPLIT) ================= -->
+        <div id="workspace-layout">
+            <!-- Left / Center Canvas & Feed Area -->
+            <section id="content-pane">
+                <!-- Filter Subheader Bar -->
+                <div class="filter-bar">
+                    <div class="filter-pills" id="typeFilterPills">
+                        <button class="filter-pill active" data-type="all" onclick="filterByType('all')">All <span class="pill-count" id="countAll">0</span></button>
+                        <button class="filter-pill" data-type="pdf" onclick="filterByType('pdf')">PDFs <span class="pill-count" id="countPdf">0</span></button>
+                        <button class="filter-pill" data-type="screenshot" onclick="filterByType('screenshot')">Screenshots <span class="pill-count" id="countScreenshot">0</span></button>
+                        <button class="filter-pill" data-type="voice" onclick="filterByType('voice')">Voice <span class="pill-count" id="countVoice">0</span></button>
+                        <button class="filter-pill" data-type="text" onclick="filterByType('text')">Notes <span class="pill-count" id="countText">0</span></button>
+                    </div>
+
+                    <div class="sync-indicator">
+                        <span class="status-dot"></span>
+                        <span id="syncText">Local Memory Active</span>
+                    </div>
+                </div>
+
+                <!-- VIEW 1: BENTO / MASONRY GRID VIEW -->
+                <div id="view-grid" class="view-panel active">
+                    <!-- Top 3 Intelligence Cards Row -->
+                    <div class="hero-cards-row">
+                        <!-- Card 1: Quick Capture Box -->
+                        <div class="hero-card quick-capture-card">
+                            <div class="quick-cap-header">
+                                <span class="card-tag">⚡ QUICK CAPTURE</span>
+                            </div>
+                            <textarea id="quickCaptureInput" placeholder="Start writing or paste notes, flights, chat logs..." rows="3"></textarea>
+                            <div class="quick-cap-footer">
+                                <div class="type-mini-selector">
+                                    <button class="mini-type-btn active" data-type="text" onclick="setQuickType('text')">Text</button>
+                                    <button class="mini-type-btn" data-type="pdf" onclick="setQuickType('pdf')">PDF</button>
+                                    <button class="mini-type-btn" data-type="screenshot" onclick="setQuickType('screenshot')">Image</button>
+                                    <button class="mini-type-btn" data-type="voice" onclick="setQuickType('voice')">Voice</button>
+                                </div>
+                                <button class="save-note-btn" onclick="submitQuickCapture()">
+                                    <span>+ Save capture</span>
+                                    <kbd>Enter</kbd>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Card 2: AI Space Context Insight -->
+                        <div class="hero-card ai-insight-card">
+                            <div class="ai-insight-top">
+                                <div class="ai-spark-label">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                                    <span>SPACE INTELLIGENCE</span>
+                                </div>
+                                <span class="ai-tag">Groq LLaMA-3</span>
+                            </div>
+                            <div class="ai-insight-title" id="spaceHeroTitle">Trip to Goa Context</div>
+                            <div class="ai-insight-body" id="spaceHeroSummary">
+                                Planning information for a Goa trip involving three people, two conflicting departure dates (Oct 12 vs Oct 13), Sea Breeze Resort reservation, and budget target.
+                            </div>
+                            <div class="ai-insight-actions">
+                                <button class="insight-btn" onclick="askPresetQuery('What date am I actually leaving for Goa?')">💬 Ask Context</button>
+                                <button class="insight-btn danger" onclick="switchView('contradictions')">⚠️ 1 Conflict</button>
+                            </div>
+                        </div>
+
+                        <!-- Card 3: Mini Knowledge Graph Thumbnail -->
+                        <div class="hero-card graph-thumbnail-card" onclick="switchView('graph')">
+                            <div class="graph-thumb-canvas-container">
+                                <canvas id="miniGraphCanvas" width="220" height="110"></canvas>
+                            </div>
+                            <div class="graph-thumb-footer">
+                                <span class="graph-stats-label" id="miniGraphStats">4 captures • 4 entities</span>
+                                <span class="view-graph-link">View graph →</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Bento Feed Grid -->
+                    <div class="bento-feed-grid" id="bentoFeedGrid">
+                        <!-- Rendered dynamically -->
+                    </div>
+                </div>
+
+                <!-- VIEW 2: FULLSCREEN KNOWLEDGE GRAPH CANVAS -->
+                <div id="view-graph" class="view-panel">
+                    <div class="graph-toolbar">
+                        <div class="graph-title-block">
+                            <h3>Entity & Context Relationship Graph</h3>
+                            <p>Visual representation of resolved entities, captures, and conflicting relationships.</p>
+                        </div>
+                        <div class="graph-actions">
+                            <button class="tool-btn" onclick="resetGraphView()">Reset Zoom</button>
+                            <button class="tool-btn highlight" onclick="switchView('contradictions')">Highlight Conflicts (Red)</button>
+                        </div>
+                    </div>
+                    <div id="full-canvas-container">
+                        <canvas id="fullGraphCanvas"></canvas>
+                    </div>
+                </div>
+
+                <!-- VIEW 3: CONTRADICTION REVIEW SCREEN -->
+                <div id="view-contradictions" class="view-panel">
+                    <div class="contra-screen-header">
+                        <div class="contra-header-text">
+                            <h3>Cross-Source Contradiction Resolution</h3>
+                            <p>Capture automatically flags factual disagreements across documents, messages, and voice memos.</p>
+                        </div>
+                    </div>
+                    <div class="contra-list-container" id="contraListContainer">
+                        <!-- Rendered dynamically -->
+                    </div>
+                </div>
+
+                <!-- VIEW 4: CONTEXT METRICS SCREEN -->
+                <div id="view-metrics" class="view-panel">
+                    <div class="metrics-screen-header">
+                        <h3>Context Reduction Telemetry</h3>
+                        <p>Mathematical proof that CAPTURE sends only the minimum sufficient context to AI models.</p>
+                    </div>
+                    <div class="metrics-grid-3">
+                        <div class="metric-card-big highlight">
+                            <span class="m-label">AVERAGE CONTEXT REDUCTION</span>
+                            <span class="m-val" id="telemetryAvgPct">94.8%</span>
+                            <span class="m-desc">Prompt token bloat prevented compared to naive whole-space dump.</span>
+                        </div>
+                        <div class="metric-card-big">
+                            <span class="m-label">NAIVE VS ACTUAL CONTEXT</span>
+                            <span class="m-val" id="telemetryTokenRatio">1,200 → 68 tokens</span>
+                            <span class="m-desc">True factual subset isolated per query.</span>
+                        </div>
+                        <div class="metric-card-big">
+                            <span class="m-label">ACTIVE CONTRADICTIONS CAUGHT</span>
+                            <span class="m-val" id="telemetryContras">1 Caught</span>
+                            <span class="m-desc">Prevented schedule and booking failure before impact.</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ================= RIGHT AI ASSISTANT PANE ("ASK CAPTURE") ================= -->
+            <aside id="ai-chat-pane">
+                <div class="chat-header">
+                    <div class="model-select-wrapper">
+                        <span class="model-indicator-dot"></span>
+                        <select id="modelSelector">
+                            <option value="groq-llama">Groq LLaMA-3 (Fast)</option>
+                            <option value="groq-gptoss">Groq GPT-OSS-20B</option>
+                            <option value="local-minilm">Local MiniLM-L6</option>
+                        </select>
+                    </div>
+                    <div class="chat-header-actions">
+                        <button class="icon-tiny-btn" onclick="clearChat()" title="Clear Chat">↺</button>
+                        <button class="icon-tiny-btn" onclick="toggleChatExpand()" title="Expand / Collapse">⤢</button>
+                    </div>
+                </div>
+
+                <div class="chat-messages-scroll" id="chatMessagesScroll">
+                    <div class="chat-welcome-message">
+                        <div class="ai-avatar-badge">⚡</div>
+                        <h4>Ask your memory.</h4>
+                        <p>Retrieve exact answers with zero hallucination. Only the minimum sufficient context is assembled.</p>
+                        
+                        <div class="query-suggestions-block">
+                            <span class="qs-title">Suggested queries:</span>
+                            <button class="qs-chip" onclick="askPresetQuery('What date am I actually leaving for Goa?')">
+                                🌴 "What date am I actually leaving for Goa?"
+                            </button>
+                            <button class="qs-chip" onclick="askPresetQuery('What is the budget and hotel for Goa?')">
+                                🏨 "What is the budget and hotel for Goa?"
+                            </button>
+                            <button class="qs-chip" onclick="askPresetQuery('Find conflicting information in my records.')">
+                                ⚠️ "Find conflicting information in my records."
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Chat Input Bar -->
+                <div class="chat-input-container">
+                    <div class="chat-input-bar">
+                        <input type="text" id="chatInput" placeholder="Ask your supermemory..." onkeydown="if(event.key==='Enter') submitChatMessage()">
+                        <button class="chat-send-btn" onclick="submitChatMessage()">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 5 19 12"/></svg>
+                        </button>
+                    </div>
+                </div>
+            </aside>
+        </div>
+    </div>
+
+    <!-- Capture Detail Modal -->
+    <div class="modal-backdrop" id="detailModal" style="display:none;" onclick="if(event.target===this) closeDetailModal()">
+        <div class="modal-window">
+            <div class="modal-top">
+                <div class="modal-type-tag" id="modalTypeTag">PDF</div>
+                <h3 id="modalTitle">Capture Detail</h3>
+                <button class="modal-close" onclick="closeDetailModal()">✕</button>
+            </div>
+            <div class="modal-content-area">
+                <div class="modal-field">
+                    <label>NORMALIZED CONTEXT</label>
+                    <div class="modal-text-box" id="modalNormalized"></div>
+                </div>
+                <div class="modal-field">
+                    <label>RAW CAPTURE CONTENT</label>
+                    <div class="modal-text-box code-style" id="modalOriginal"></div>
+                </div>
+                <div class="modal-field">
+                    <label>RESOLVED ENTITIES</label>
+                    <div class="modal-chips-row" id="modalEntities"></div>
+                </div>
+            </div>
+            <div class="modal-bottom">
+                <span class="modal-date" id="modalDate">Captured recently</span>
+                <button class="modal-del-btn" onclick="deleteActiveCapture()">Delete</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="toast-tray" id="toastTray"></div>
+
+    <script src="app.js"></script>
+</body>
+</html>

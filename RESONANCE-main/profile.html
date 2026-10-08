@@ -1,0 +1,2751 @@
+```html
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>AI Learn - My Profile</title>
+
+<link rel="stylesheet"
+href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+
+<style>
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+:root {
+    --background: #f6f1e7;
+    --card: #fffdf7;
+    --text: #24352b;
+    --secondary-text: #6d796f;
+    --border: #dfe5da;
+    --input: #f8f6ef;
+    --soft: #eef3e9;
+    --primary: #4f7658;
+    --primary-hover: #3f6248;
+    --success: #4f8a5b;
+}
+
+body.dark-mode {
+    --background: #17221a;
+    --card: #202d23;
+    --text: #f1f4ed;
+    --secondary-text: #b4c0b5;
+    --border: #39483c;
+    --input: #29362b;
+    --soft: #2c3b2e;
+    --primary: #82a88a;
+    --primary-hover: #709678;
+    --success: #8bc995;
+}
+
+body {
+    font-family: Arial, Helvetica, sans-serif;
+    background: var(--background);
+    color: var(--text);
+    transition: 0.3s;
+}
+
+/* NAVBAR */
+
+.navbar {
+    height: 72px;
+    background: var(--card);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 7%;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+
+.logo {
+    font-size: 23px;
+    font-weight: 700;
+    color: var(--primary);
+}
+
+.nav-links {
+    display: flex;
+    gap: 32px;
+}
+
+.nav-links a {
+    text-decoration: none;
+    color: var(--secondary-text);
+    font-size: 15px;
+}
+
+.nav-links a:hover,
+.nav-links .active {
+    color: var(--primary);
+}
+
+/* MAIN */
+
+.container {
+    width: 86%;
+    max-width: 1100px;
+    margin: 45px auto 70px;
+}
+
+.page-title {
+    margin-bottom: 28px;
+}
+
+.page-title h1 {
+    font-size: 34px;
+    margin-bottom: 8px;
+}
+
+.page-title p {
+    color: var(--secondary-text);
+}
+
+/* PROFILE HEADER */
+
+.profile-header {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 30px;
+    display: flex;
+    align-items: center;
+    gap: 22px;
+    margin-bottom: 26px;
+    box-shadow: 0 5px 20px rgba(50,70,50,0.05);
+}
+
+.avatar {
+    width: 82px;
+    height: 82px;
+    border-radius: 50%;
+    background: var(--primary);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 27px;
+    font-weight: 700;
+}
+
+.profile-info h2 {
+    font-size: 23px;
+    margin-bottom: 6px;
+}
+
+.profile-info p {
+    color: var(--secondary-text);
+}
+
+/* SECTIONS */
+
+.section {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 27px;
+    margin-bottom: 20px;
+    box-shadow: 0 5px 20px rgba(50,70,50,0.04);
+}
+
+.section h2 {
+    font-size: 18px;
+    margin-bottom: 22px;
+}
+
+.section-description {
+    color: var(--secondary-text);
+    font-size: 14px;
+    margin-top: -12px;
+    margin-bottom: 20px;
+}
+
+/* FORM */
+
+.form-group {
+    margin-bottom: 19px;
+}
+
+.form-group:last-child {
+    margin-bottom: 0;
+}
+
+.form-group label {
+    display: block;
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 8px;
+}
+
+/* INPUT + ENTER */
+
+.input-with-button {
+    display: flex;
+    gap: 10px;
+}
+
+.input-with-button input {
+    flex: 1;
+}
+
+input,
+select {
+    width: 100%;
+    padding: 13px 14px;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    background: var(--input);
+    color: var(--text);
+    font-size: 14px;
+    outline: none;
+}
+
+input:focus,
+select:focus {
+    border-color: var(--primary);
+}
+
+.enter-button {
+    background: var(--primary);
+    color: white;
+    border: none;
+    padding: 0 21px;
+    border-radius: 10px;
+    font-weight: 600;
+    cursor: pointer;
+    min-width: 76px;
+}
+
+.enter-button:hover {
+    background: var(--primary-hover);
+}
+
+.field-message {
+    color: var(--success);
+    font-size: 12px;
+    font-weight: 600;
+    margin-top: 6px;
+    display: none;
+}
+
+/* USAGE */
+
+.usage-grid {
+    display: grid;
+    grid-template-columns: repeat(3,1fr);
+    gap: 16px;
+}
+
+.usage-card {
+    background: var(--soft);
+    border-radius: 14px;
+    padding: 21px;
+    border: 1px solid var(--border);
+}
+
+.usage-card h3 {
+    font-size: 26px;
+    color: var(--primary);
+    margin-bottom: 6px;
+}
+
+.usage-card p {
+    color: var(--secondary-text);
+    font-size: 13px;
+}
+
+/* APPEARANCE */
+
+.theme-options {
+    display: grid;
+    grid-template-columns: repeat(3,1fr);
+    gap: 15px;
+}
+
+.theme-option {
+    border: 2px solid var(--border);
+    border-radius: 14px;
+    padding: 19px;
+    cursor: pointer;
+    text-align: center;
+    background: var(--card);
+}
+
+.theme-option:hover {
+    border-color: var(--primary);
+}
+
+.theme-option.selected {
+    border-color: var(--primary);
+    background: var(--soft);
+}
+
+.theme-option input {
+    display: none;
+}
+
+.theme-icon {
+    font-size: 25px;
+    margin-bottom: 9px;
+}
+
+/* SETTINGS */
+
+.setting-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    padding: 17px 0;
+    border-bottom: 1px solid var(--border);
+}
+
+.setting-row:last-child {
+    border-bottom: none;
+}
+
+.setting-text h3 {
+    font-size: 15px;
+    margin-bottom: 5px;
+}
+
+.setting-text p {
+    color: var(--secondary-text);
+    font-size: 13px;
+}
+
+/* TOGGLE */
+
+.toggle {
+    position: relative;
+    width: 48px;
+    height: 25px;
+    flex-shrink: 0;
+}
+
+.toggle input {
+    display: none;
+}
+
+.slider {
+    position: absolute;
+    inset: 0;
+    background: #c9d0c8;
+    border-radius: 20px;
+    cursor: pointer;
+}
+
+.slider:before {
+    content: "";
+    position: absolute;
+    width: 19px;
+    height: 19px;
+    left: 3px;
+    top: 3px;
+    background: white;
+    border-radius: 50%;
+    transition: 0.3s;
+}
+
+.toggle input:checked + .slider {
+    background: var(--primary);
+}
+
+.toggle input:checked + .slider:before {
+    transform: translateX(23px);
+}
+
+/* APPS */
+
+.apps {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.app {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px;
+    background: var(--soft);
+    border-radius: 14px;
+    border: 1px solid var(--border);
+}
+
+.app-left {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.app-logo {
+    width: 45px;
+    height: 45px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--card);
+    font-size: 23px;
+}
+
+.instagram-logo {
+    color: #d84b78;
+}
+
+.whatsapp-logo {
+    color: #319b54;
+}
+
+.linkedin-logo {
+    color: #3979a8;
+}
+
+.app-name {
+    font-weight: 600;
+}
+
+.connected {
+    color: var(--success);
+    font-size: 12px;
+    margin-top: 4px;
+}
+
+.disconnect {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--text);
+    border-radius: 9px;
+    padding: 9px 15px;
+    font-weight: 600;
+}
+
+/* SAVE */
+
+.save-button {
+    width: 100%;
+    padding: 15px;
+    background: var(--primary);
+    color: white;
+    border: none;
+    border-radius: 11px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.save-button:hover {
+    background: var(--primary-hover);
+}
+
+.save-message {
+    text-align: center;
+    margin-top: 12px;
+    color: var(--success);
+    font-size: 14px;
+    font-weight: 600;
+    display: none;
+}
+
+/* MOBILE */
+
+@media(max-width:700px) {
+
+    .navbar {
+        padding: 0 20px;
+    }
+
+    .nav-links {
+        gap: 12px;
+    }
+
+    .nav-links a {
+        font-size: 12px;
+    }
+
+    .container {
+        width: 92%;
+    }
+
+    .usage-grid,
+    .theme-options {
+        grid-template-columns: 1fr;
+    }
+
+    .input-with-button {
+        flex-direction: column;
+    }
+
+    .enter-button {
+        padding: 12px;
+    }
+
+}
+
+</style>
+
+</head>
+
+
+<body>
+
+
+<!-- NAVBAR -->
+
+<nav class="navbar">
+
+    <div class="logo">
+        AI Learn
+    </div>
+
+    <div class="nav-links">
+
+        <a href="#" data-key="home">Home</a>
+
+        <a href="#" data-key="dashboard">Dashboard</a>
+
+        <a href="#" data-key="learning">Learning</a>
+
+        <a href="#" class="active" data-key="myProfile">
+            My Profile
+        </a>
+
+    </div>
+
+</nav>
+
+
+
+<main class="container">
+
+
+<!-- PAGE TITLE -->
+
+<div class="page-title">
+
+    <h1 data-key="pageTitle">
+        My Profile
+    </h1>
+
+    <p data-key="pageDescription">
+        Manage your account and learning preferences.
+    </p>
+
+</div>
+
+
+
+<!-- PROFILE HEADER -->
+
+<div class="profile-header">
+
+    <div class="avatar" id="avatar">
+        AL
+    </div>
+
+    <div class="profile-info">
+
+        <h2 id="profileName">
+            Alex Learner
+        </h2>
+
+        <p data-key="companion">
+            AI Learning Companion
+        </p>
+
+    </div>
+
+</div>
+
+
+
+<!-- PERSONAL INFORMATION -->
+
+<section class="section">
+
+    <h2 data-key="personalInformation">
+        PERSONAL INFORMATION
+    </h2>
+
+
+    <div class="form-group">
+
+        <label data-key="firstName">
+            First Name
+        </label>
+
+        <div class="input-with-button">
+
+            <input
+                type="text"
+                id="firstName"
+                data-placeholder="firstNamePlaceholder"
+                placeholder="Enter your first name"
+            >
+
+            <button
+                type="button"
+                class="enter-button"
+                onclick="saveField('firstName')"
+                data-key="enter"
+            >
+                Enter
+            </button>
+
+        </div>
+
+        <div
+            class="field-message"
+            id="firstName-message"
+        >
+            ✓ Saved
+        </div>
+
+    </div>
+
+
+
+    <div class="form-group">
+
+        <label data-key="lastName">
+            Last Name
+        </label>
+
+        <div class="input-with-button">
+
+            <input
+                type="text"
+                id="lastName"
+                data-placeholder="lastNamePlaceholder"
+                placeholder="Enter your last name"
+            >
+
+            <button
+                type="button"
+                class="enter-button"
+                onclick="saveField('lastName')"
+                data-key="enter"
+            >
+                Enter
+            </button>
+
+        </div>
+
+        <div
+            class="field-message"
+            id="lastName-message"
+        >
+            ✓ Saved
+        </div>
+
+    </div>
+
+
+
+    <div class="form-group">
+
+        <label data-key="username">
+            Username
+        </label>
+
+        <div class="input-with-button">
+
+            <input
+                type="text"
+                id="username"
+                data-placeholder="usernamePlaceholder"
+                placeholder="Enter your username"
+            >
+
+            <button
+                type="button"
+                class="enter-button"
+                onclick="saveField('username')"
+                data-key="enter"
+            >
+                Enter
+            </button>
+
+        </div>
+
+        <div
+            class="field-message"
+            id="username-message"
+        >
+            ✓ Saved
+        </div>
+
+    </div>
+
+</section>
+
+
+
+<!-- EMAIL AND PASSWORD -->
+
+<section class="section">
+
+    <h2 data-key="emailPassword">
+        EMAIL AND PASSWORD
+    </h2>
+
+
+    <div class="form-group">
+
+        <label data-key="email">
+            Email ID
+        </label>
+
+        <div class="input-with-button">
+
+            <input
+                type="email"
+                id="email"
+                data-placeholder="emailPlaceholder"
+                placeholder="Enter your email ID"
+            >
+
+            <button
+                type="button"
+                class="enter-button"
+                onclick="saveField('email')"
+                data-key="enter"
+            >
+                Enter
+            </button>
+
+        </div>
+
+        <div
+            class="field-message"
+            id="email-message"
+        >
+            ✓ Saved
+        </div>
+
+    </div>
+
+
+
+    <div class="form-group">
+
+        <label data-key="newPassword">
+            New Password
+        </label>
+
+        <div class="input-with-button">
+
+            <input
+                type="password"
+                id="password"
+                data-placeholder="passwordPlaceholder"
+                placeholder="Enter your new password"
+            >
+
+            <button
+                type="button"
+                class="enter-button"
+                onclick="savePassword()"
+                data-key="enter"
+            >
+                Enter
+            </button>
+
+        </div>
+
+        <div
+            class="field-message"
+            id="password-message"
+        >
+            ✓ Password saved
+        </div>
+
+    </div>
+
+
+
+    <div class="form-group">
+
+        <label data-key="confirmPassword">
+            Confirm Password
+        </label>
+
+        <div class="input-with-button">
+
+            <input
+                type="password"
+                id="confirmPassword"
+                data-placeholder="confirmPasswordPlaceholder"
+                placeholder="Confirm your password"
+            >
+
+            <button
+                type="button"
+                class="enter-button"
+                onclick="savePassword()"
+                data-key="enter"
+            >
+                Enter
+            </button>
+
+        </div>
+
+        <div
+            class="field-message"
+            id="confirmPassword-message"
+        >
+            ✓ Password confirmed
+        </div>
+
+    </div>
+
+</section>
+
+
+
+<!-- USAGE -->
+
+<section class="section">
+
+    <h2 data-key="usage">
+        USAGE
+    </h2>
+
+    <div class="usage-grid">
+
+        <div class="usage-card">
+            <h3>24</h3>
+            <p data-key="learningSessions">
+                Learning Sessions
+            </p>
+        </div>
+
+        <div class="usage-card">
+            <h3>8.5h</h3>
+            <p data-key="learningTime">
+                Total Learning Time
+            </p>
+        </div>
+
+        <div class="usage-card">
+            <h3>12</h3>
+            <p data-key="dayStreak">
+                Day Streak
+            </p>
+        </div>
+
+    </div>
+
+</section>
+
+
+
+<!-- APPEARANCE -->
+
+<section class="section">
+
+    <h2 data-key="appearance">
+        APPEARANCE
+    </h2>
+
+    <p class="section-description" data-key="appearanceDescription">
+        Choose how AI Learn looks on your device.
+    </p>
+
+
+    <div class="theme-options">
+
+        <label class="theme-option selected">
+
+            <input
+                type="radio"
+                name="theme"
+                value="light"
+                checked
+            >
+
+            <div class="theme-icon">☀️</div>
+
+            <span data-key="light">
+                Light
+            </span>
+
+        </label>
+
+
+        <label class="theme-option">
+
+            <input
+                type="radio"
+                name="theme"
+                value="dark"
+            >
+
+            <div class="theme-icon">🌙</div>
+
+            <span data-key="dark">
+                Dark
+            </span>
+
+        </label>
+
+
+        <label class="theme-option">
+
+            <input
+                type="radio"
+                name="theme"
+                value="system"
+            >
+
+            <div class="theme-icon">💻</div>
+
+            <span data-key="system">
+                System
+            </span>
+
+        </label>
+
+    </div>
+
+</section>
+
+
+
+<!-- EDITOR -->
+
+<section class="section">
+
+    <h2 data-key="editor">
+        EDITOR
+    </h2>
+
+    <div class="form-group">
+
+        <label data-key="fontSize">
+            Font Size
+        </label>
+
+        <select id="fontSize">
+
+            <option>Small</option>
+
+            <option selected>Medium</option>
+
+            <option>Large</option>
+
+        </select>
+
+    </div>
+
+
+    <div class="form-group">
+
+        <label data-key="editorFont">
+            Editor Font
+        </label>
+
+        <select id="editorFont">
+
+            <option selected>Default</option>
+
+            <option>Monospace</option>
+
+            <option>Serif</option>
+
+        </select>
+
+    </div>
+
+</section>
+
+
+
+<!-- DEFAULT VIEW -->
+
+<section class="section">
+
+    <h2 data-key="defaultView">
+        DEFAULT VIEW
+    </h2>
+
+    <div class="form-group">
+
+        <label data-key="openTo">
+            Open AI Learn to
+        </label>
+
+        <select id="defaultView">
+
+            <option>Dashboard</option>
+
+            <option>Learning</option>
+
+            <option>My Profile</option>
+
+        </select>
+
+    </div>
+
+</section>
+
+
+
+<!-- AI PREFERENCES -->
+
+<section class="section">
+
+    <h2 data-key="aiPreferences">
+        AI PREFERENCES
+    </h2>
+
+
+    <div class="setting-row">
+
+        <div class="setting-text">
+
+            <h3 data-key="personalizedLearning">
+                Personalized Learning
+            </h3>
+
+            <p data-key="personalizedDescription">
+                Allow AI to personalize your learning experience.
+            </p>
+
+        </div>
+
+
+        <label class="toggle">
+
+            <input
+                type="checkbox"
+                id="personalizedLearning"
+                checked
+            >
+
+            <span class="slider"></span>
+
+        </label>
+
+    </div>
+
+
+
+    <div class="setting-row">
+
+        <div class="setting-text">
+
+            <h3 data-key="aiSuggestions">
+                AI Suggestions
+            </h3>
+
+            <p data-key="suggestionsDescription">
+                Receive recommendations based on your progress.
+            </p>
+
+        </div>
+
+
+        <label class="toggle">
+
+            <input
+                type="checkbox"
+                id="aiSuggestions"
+                checked
+            >
+
+            <span class="slider"></span>
+
+        </label>
+
+    </div>
+
+</section>
+
+
+
+<!-- NOTIFICATIONS -->
+
+<section class="section">
+
+    <h2 data-key="notifications">
+        NOTIFICATIONS
+    </h2>
+
+
+    <div class="setting-row">
+
+        <div class="setting-text">
+
+            <h3 data-key="learningReminders">
+                Learning Reminders
+            </h3>
+
+            <p data-key="remindersDescription">
+                Get reminders to continue your learning.
+            </p>
+
+        </div>
+
+
+        <label class="toggle">
+
+            <input
+                type="checkbox"
+                id="learningReminders"
+                checked
+            >
+
+            <span class="slider"></span>
+
+        </label>
+
+    </div>
+
+
+
+    <div class="setting-row">
+
+        <div class="setting-text">
+
+            <h3 data-key="weeklyProgress">
+                Weekly Progress
+            </h3>
+
+            <p data-key="weeklyDescription">
+                Receive a weekly summary of your progress.
+            </p>
+
+        </div>
+
+
+        <label class="toggle">
+
+            <input
+                type="checkbox"
+                id="weeklyProgress"
+            >
+
+            <span class="slider"></span>
+
+        </label>
+
+    </div>
+
+</section>
+
+
+
+<!-- LANGUAGE -->
+
+<section class="section">
+
+    <h2 data-key="language">
+        LANGUAGE
+    </h2>
+
+    <div class="form-group">
+
+        <label data-key="preferredLanguage">
+            Preferred Language
+        </label>
+
+        <select id="language">
+
+            <option value="en">English</option>
+            <option value="hi">Hindi</option>
+            <option value="te">Telugu</option>
+            <option value="ta">Tamil</option>
+            <option value="kn">Kannada</option>
+            <option value="ml">Malayalam</option>
+            <option value="bn">Bengali</option>
+            <option value="mr">Marathi</option>
+            <option value="gu">Gujarati</option>
+            <option value="pa">Punjabi</option>
+            <option value="ur">Urdu</option>
+            <option value="or">Odia</option>
+            <option value="as">Assamese</option>
+            <option value="ne">Nepali</option>
+            <option value="sa">Sanskrit</option>
+            <option value="ar">Arabic</option>
+            <option value="zh">Chinese</option>
+            <option value="ja">Japanese</option>
+            <option value="ko">Korean</option>
+            <option value="fr">French</option>
+            <option value="es">Spanish</option>
+            <option value="de">German</option>
+            <option value="it">Italian</option>
+            <option value="pt">Portuguese</option>
+            <option value="ru">Russian</option>
+            <option value="tr">Turkish</option>
+
+        </select>
+
+    </div>
+
+</section>
+
+
+
+<!-- CLOUD STORAGE -->
+
+<section class="section">
+
+    <h2 data-key="cloudStorage">
+        CLOUD STORAGE
+    </h2>
+
+    <div class="setting-row">
+
+        <div class="setting-text">
+
+            <h3 data-key="cloudStorage">
+                Cloud Storage
+            </h3>
+
+            <p data-key="cloudDescription">
+                Connect your cloud storage to save learning materials.
+            </p>
+
+        </div>
+
+        <button
+            class="disconnect"
+            onclick="alert(currentLanguage === 'en' ? 'Cloud storage connection coming soon!' : 'Cloud storage connection coming soon!')"
+            data-key="connect"
+        >
+            Connect
+        </button>
+
+    </div>
+
+</section>
+
+
+
+<!-- PRIVACY -->
+
+<section class="section">
+
+    <h2 data-key="privacy">
+        PRIVACY
+    </h2>
+
+    <div class="setting-row">
+
+        <div class="setting-text">
+
+            <h3 data-key="profileVisibility">
+                Profile Visibility
+            </h3>
+
+            <p data-key="visibilityDescription">
+                Allow other learners to see your profile.
+            </p>
+
+        </div>
+
+
+        <label class="toggle">
+
+            <input
+                type="checkbox"
+                id="profileVisibility"
+            >
+
+            <span class="slider"></span>
+
+        </label>
+
+    </div>
+
+</section>
+
+
+
+<!-- CONNECTED APPS -->
+
+<section class="section">
+
+    <h2 data-key="connectedApps">
+        CONNECTED APPS
+    </h2>
+
+    <p
+        class="section-description"
+        data-key="appsDescription"
+    >
+        Manage the apps connected to your AI Learn account.
+    </p>
+
+
+    <div class="apps">
+
+
+        <div class="app">
+
+            <div class="app-left">
+
+                <div class="app-logo instagram-logo">
+                    <i class="fa-brands fa-instagram"></i>
+                </div>
+
+                <div>
+
+                    <div class="app-name">
+                        Instagram
+                    </div>
+
+                    <div
+                        class="connected"
+                        data-key="connected"
+                    >
+                        ● Connected
+                    </div>
+
+                </div>
+
+            </div>
+
+            <button
+                class="disconnect"
+                onclick="disconnectApp('Instagram')"
+                data-key="disconnect"
+            >
+                Disconnect
+            </button>
+
+        </div>
+
+
+
+        <div class="app">
+
+            <div class="app-left">
+
+                <div class="app-logo whatsapp-logo">
+                    <i class="fa-brands fa-whatsapp"></i>
+                </div>
+
+                <div>
+
+                    <div class="app-name">
+                        WhatsApp
+                    </div>
+
+                    <div
+                        class="connected"
+                        data-key="connected"
+                    >
+                        ● Connected
+                    </div>
+
+                </div>
+
+            </div>
+
+            <button
+                class="disconnect"
+                onclick="disconnectApp('WhatsApp')"
+                data-key="disconnect"
+            >
+                Disconnect
+            </button>
+
+        </div>
+
+
+
+        <div class="app">
+
+            <div class="app-left">
+
+                <div class="app-logo linkedin-logo">
+                    <i class="fa-brands fa-linkedin-in"></i>
+                </div>
+
+                <div>
+
+                    <div class="app-name">
+                        LinkedIn
+                    </div>
+
+                    <div
+                        class="connected"
+                        data-key="connected"
+                    >
+                        ● Connected
+                    </div>
+
+                </div>
+
+            </div>
+
+            <button
+                class="disconnect"
+                onclick="disconnectApp('LinkedIn')"
+                data-key="disconnect"
+            >
+                Disconnect
+            </button>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+
+<!-- SAVE -->
+
+<button
+    class="save-button"
+    onclick="saveAll()"
+    data-key="saveAll"
+>
+    Save All Changes
+</button>
+
+
+<div
+    class="save-message"
+    id="saveMessage"
+    data-key="savedAll"
+>
+    ✓ All changes have been saved successfully!
+</div>
+
+
+</main>
+
+
+
+<script>
+
+/* ==========================================================
+   TRANSLATIONS
+========================================================== */
+
+const translations = {
+
+en: {
+
+home: "Home",
+dashboard: "Dashboard",
+learning: "Learning",
+myProfile: "My Profile",
+
+pageTitle: "My Profile",
+pageDescription: "Manage your account and learning preferences.",
+companion: "AI Learning Companion",
+
+personalInformation: "PERSONAL INFORMATION",
+firstName: "First Name",
+lastName: "Last Name",
+username: "Username",
+emailPassword: "EMAIL AND PASSWORD",
+email: "Email ID",
+newPassword: "New Password",
+confirmPassword: "Confirm Password",
+enter: "Enter",
+
+firstNamePlaceholder: "Enter your first name",
+lastNamePlaceholder: "Enter your last name",
+usernamePlaceholder: "Enter your username",
+emailPlaceholder: "Enter your email ID",
+passwordPlaceholder: "Enter your new password",
+confirmPasswordPlaceholder: "Confirm your password",
+
+usage: "USAGE",
+learningSessions: "Learning Sessions",
+learningTime: "Total Learning Time",
+dayStreak: "Day Streak",
+
+appearance: "APPEARANCE",
+appearanceDescription: "Choose how AI Learn looks on your device.",
+light: "Light",
+dark: "Dark",
+system: "System",
+
+editor: "EDITOR",
+fontSize: "Font Size",
+editorFont: "Editor Font",
+
+defaultView: "DEFAULT VIEW",
+openTo: "Open AI Learn to",
+
+aiPreferences: "AI PREFERENCES",
+personalizedLearning: "Personalized Learning",
+personalizedDescription: "Allow AI to personalize your learning experience.",
+aiSuggestions: "AI Suggestions",
+suggestionsDescription: "Receive recommendations based on your progress.",
+
+notifications: "NOTIFICATIONS",
+learningReminders: "Learning Reminders",
+remindersDescription: "Get reminders to continue your learning.",
+weeklyProgress: "Weekly Progress",
+weeklyDescription: "Receive a weekly summary of your progress.",
+
+language: "LANGUAGE",
+preferredLanguage: "Preferred Language",
+
+cloudStorage: "CLOUD STORAGE",
+cloudDescription: "Connect your cloud storage to save learning materials.",
+connect: "Connect",
+
+privacy: "PRIVACY",
+profileVisibility: "Profile Visibility",
+visibilityDescription: "Allow other learners to see your profile.",
+
+connectedApps: "CONNECTED APPS",
+appsDescription: "Manage the apps connected to your AI Learn account.",
+connected: "● Connected",
+disconnect: "Disconnect",
+
+saveAll: "Save All Changes",
+savedAll: "✓ All changes have been saved successfully!"
+
+},
+
+hi: {
+
+home:"होम",
+dashboard:"डैशबोर्ड",
+learning:"सीखना",
+myProfile:"मेरी प्रोफ़ाइल",
+pageTitle:"मेरी प्रोफ़ाइल",
+pageDescription:"अपना खाता और सीखने की प्राथमिकताएँ प्रबंधित करें।",
+companion:"AI लर्निंग कंपेनियन",
+personalInformation:"व्यक्तिगत जानकारी",
+firstName:"पहला नाम",
+lastName:"अंतिम नाम",
+username:"उपयोगकर्ता नाम",
+emailPassword:"ईमेल और पासवर्ड",
+email:"ईमेल आईडी",
+newPassword:"नया पासवर्ड",
+confirmPassword:"पासवर्ड की पुष्टि करें",
+enter:"दर्ज करें",
+firstNamePlaceholder:"अपना पहला नाम दर्ज करें",
+lastNamePlaceholder:"अपना अंतिम नाम दर्ज करें",
+usernamePlaceholder:"अपना उपयोगकर्ता नाम दर्ज करें",
+emailPlaceholder:"अपना ईमेल दर्ज करें",
+passwordPlaceholder:"नया पासवर्ड दर्ज करें",
+confirmPasswordPlaceholder:"अपना पासवर्ड फिर से दर्ज करें",
+usage:"उपयोग",
+learningSessions:"लर्निंग सेशन",
+learningTime:"कुल सीखने का समय",
+dayStreak:"दिनों की स्ट्रीक",
+appearance:"दिखावट",
+appearanceDescription:"अपने डिवाइस पर AI Learn का रूप चुनें।",
+light:"लाइट",
+dark:"डार्क",
+system:"सिस्टम",
+editor:"एडिटर",
+fontSize:"फॉन्ट आकार",
+editorFont:"एडिटर फॉन्ट",
+defaultView:"डिफ़ॉल्ट व्यू",
+openTo:"AI Learn खोलें",
+aiPreferences:"AI प्राथमिकताएँ",
+personalizedLearning:"व्यक्तिगत सीखना",
+personalizedDescription:"AI को आपके सीखने के अनुभव को व्यक्तिगत बनाने दें।",
+aiSuggestions:"AI सुझाव",
+suggestionsDescription:"अपनी प्रगति के आधार पर सुझाव प्राप्त करें।",
+notifications:"सूचनाएँ",
+learningReminders:"लर्निंग रिमाइंडर",
+remindersDescription:"अपनी पढ़ाई जारी रखने के लिए रिमाइंडर प्राप्त करें।",
+weeklyProgress:"साप्ताहिक प्रगति",
+weeklyDescription:"अपनी साप्ताहिक प्रगति की रिपोर्ट प्राप्त करें।",
+language:"भाषा",
+preferredLanguage:"पसंदीदा भाषा",
+cloudStorage:"क्लाउड स्टोरेज",
+cloudDescription:"लर्निंग सामग्री सहेजने के लिए क्लाउड स्टोरेज कनेक्ट करें।",
+connect:"कनेक्ट करें",
+privacy:"गोपनीयता",
+profileVisibility:"प्रोफ़ाइल दृश्यता",
+visibilityDescription:"अन्य शिक्षार्थियों को आपकी प्रोफ़ाइल देखने दें।",
+connectedApps:"कनेक्टेड ऐप्स",
+appsDescription:"अपने AI Learn खाते से जुड़े ऐप्स प्रबंधित करें।",
+connected:"● कनेक्टेड",
+disconnect:"डिस्कनेक्ट",
+saveAll:"सभी बदलाव सहेजें",
+savedAll:"✓ सभी बदलाव सफलतापूर्वक सहेजे गए!"
+
+},
+
+te: {
+
+home:"హోమ్",
+dashboard:"డ్యాష్‌బోర్డ్",
+learning:"లెర్నింగ్",
+myProfile:"నా ప్రొఫైల్",
+pageTitle:"నా ప్రొఫైల్",
+pageDescription:"మీ ఖాతా మరియు లెర్నింగ్ ప్రాధాన్యతలను నిర్వహించండి.",
+companion:"AI లెర్నింగ్ కంపానియన్",
+personalInformation:"వ్యక్తిగత సమాచారం",
+firstName:"మొదటి పేరు",
+lastName:"చివరి పేరు",
+username:"యూజర్ పేరు",
+emailPassword:"ఇమెయిల్ మరియు పాస్‌వర్డ్",
+email:"ఇమెయిల్ ID",
+newPassword:"కొత్త పాస్‌వర్డ్",
+confirmPassword:"పాస్‌వర్డ్ నిర్ధారించండి",
+enter:"నమోదు",
+firstNamePlaceholder:"మీ మొదటి పేరు నమోదు చేయండి",
+lastNamePlaceholder:"మీ చివరి పేరు నమోదు చేయండి",
+usernamePlaceholder:"మీ యూజర్ పేరు నమోదు చేయండి",
+emailPlaceholder:"మీ ఇమెయిల్ నమోదు చేయండి",
+passwordPlaceholder:"కొత్త పాస్‌వర్డ్ నమోదు చేయండి",
+confirmPasswordPlaceholder:"మీ పాస్‌వర్డ్‌ను నిర్ధారించండి",
+usage:"వినియోగం",
+learningSessions:"లెర్నింగ్ సెషన్స్",
+learningTime:"మొత్తం లెర్నింగ్ సమయం",
+dayStreak:"రోజుల స్ట్రీక్",
+appearance:"రూపం",
+appearanceDescription:"మీ పరికరంలో AI Learn ఎలా కనిపించాలో ఎంచుకోండి.",
+light:"లైట్",
+dark:"డార్క్",
+system:"సిస్టమ్",
+editor:"ఎడిటర్",
+fontSize:"ఫాంట్ పరిమాణం",
+editorFont:"ఎడిటర్ ఫాంట్",
+defaultView:"డిఫాల్ట్ వ్యూ",
+openTo:"AI Learn తెరవండి",
+aiPreferences:"AI ప్రాధాన్యతలు",
+personalizedLearning:"వ్యక్తిగత లెర్నింగ్",
+personalizedDescription:"AI మీ లెర్నింగ్ అనుభవాన్ని వ్యక్తిగతీకరించడానికి అనుమతించండి.",
+aiSuggestions:"AI సూచనలు",
+suggestionsDescription:"మీ పురోగతి ఆధారంగా సూచనలు పొందండి.",
+notifications:"నోటిఫికేషన్స్",
+learningReminders:"లెర్నింగ్ రిమైండర్స్",
+remindersDescription:"మీ లెర్నింగ్ కొనసాగించడానికి రిమైండర్స్ పొందండి.",
+weeklyProgress:"వారపు పురోగతి",
+weeklyDescription:"మీ వారపు పురోగతి సారాంశాన్ని పొందండి.",
+language:"భాష",
+preferredLanguage:"ఇష్టమైన భాష",
+cloudStorage:"క్లౌడ్ స్టోరేజ్",
+cloudDescription:"లెర్నింగ్ మెటీరియల్‌ను సేవ్ చేయడానికి క్లౌడ్ స్టోరేజ్‌ను కనెక్ట్ చేయండి.",
+connect:"కనెక్ట్",
+privacy:"గోప్యత",
+profileVisibility:"ప్రొఫైల్ విజిబిలిటీ",
+visibilityDescription:"ఇతర లెర్నర్స్ మీ ప్రొఫైల్‌ను చూడటానికి అనుమతించండి.",
+connectedApps:"కనెక్ట్ చేసిన యాప్స్",
+appsDescription:"మీ AI Learn ఖాతాకు కనెక్ట్ చేసిన యాప్స్‌ను నిర్వహించండి.",
+connected:"● కనెక్ట్ అయింది",
+disconnect:"డిస్కనెక్ట్",
+saveAll:"అన్ని మార్పులను సేవ్ చేయండి",
+savedAll:"✓ అన్ని మార్పులు విజయవంతంగా సేవ్ చేయబడ్డాయి!"
+
+},
+
+ta: {
+
+home:"முகப்பு",
+dashboard:"டாஷ்போர்டு",
+learning:"கற்றல்",
+myProfile:"எனது சுயவிவரம்",
+pageTitle:"எனது சுயவிவரம்",
+pageDescription:"உங்கள் கணக்கு மற்றும் கற்றல் விருப்பங்களை நிர்வகிக்கவும்.",
+companion:"AI கற்றல் உதவியாளர்",
+personalInformation:"தனிப்பட்ட தகவல்",
+firstName:"முதல் பெயர்",
+lastName:"கடைசி பெயர்",
+username:"பயனர் பெயர்",
+emailPassword:"மின்னஞ்சல் மற்றும் கடவுச்சொல்",
+email:"மின்னஞ்சல் ID",
+newPassword:"புதிய கடவுச்சொல்",
+confirmPassword:"கடவுச்சொல்லை உறுதிப்படுத்தவும்",
+enter:"உள்ளிடுக",
+firstNamePlaceholder:"உங்கள் முதல் பெயரை உள்ளிடவும்",
+lastNamePlaceholder:"உங்கள் கடைசி பெயரை உள்ளிடவும்",
+usernamePlaceholder:"உங்கள் பயனர் பெயரை உள்ளிடவும்",
+emailPlaceholder:"உங்கள் மின்னஞ்சலை உள்ளிடவும்",
+passwordPlaceholder:"புதிய கடவுச்சொல்லை உள்ளிடவும்",
+confirmPasswordPlaceholder:"உங்கள் கடவுச்சொல்லை உறுதிப்படுத்தவும்",
+usage:"பயன்பாடு",
+learningSessions:"கற்றல் அமர்வுகள்",
+learningTime:"மொத்த கற்றல் நேரம்",
+dayStreak:"நாள் தொடர்",
+appearance:"தோற்றம்",
+appearanceDescription:"உங்கள் சாதனத்தில் AI Learn எப்படி தோன்ற வேண்டும் என்பதைத் தேர்ந்தெடுக்கவும்.",
+light:"ஒளி",
+dark:"இருள்",
+system:"சிஸ்டம்",
+editor:"எடிட்டர்",
+fontSize:"எழுத்துரு அளவு",
+editorFont:"எடிட்டர் எழுத்துரு",
+defaultView:"இயல்புநிலை பார்வை",
+openTo:"AI Learn திறக்க",
+aiPreferences:"AI விருப்பங்கள்",
+personalizedLearning:"தனிப்பயனாக்கப்பட்ட கற்றல்",
+personalizedDescription:"AI உங்கள் கற்றல் அனுபவத்தை தனிப்பயனாக்க அனுமதிக்கவும்.",
+aiSuggestions:"AI பரிந்துரைகள்",
+suggestionsDescription:"உங்கள் முன்னேற்றத்தின் அடிப்படையில் பரிந்துரைகளைப் பெறுங்கள்.",
+notifications:"அறிவிப்புகள்",
+learningReminders:"கற்றல் நினைவூட்டல்கள்",
+remindersDescription:"உங்கள் கற்றலைத் தொடர நினைவூட்டல்களைப் பெறுங்கள்.",
+weeklyProgress:"வாராந்திர முன்னேற்றம்",
+weeklyDescription:"உங்கள் வாராந்திர முன்னேற்றத்தைப் பெறுங்கள்.",
+language:"மொழி",
+preferredLanguage:"விருப்பமான மொழி",
+cloudStorage:"கிளவுட் சேமிப்பு",
+cloudDescription:"கற்றல் பொருட்களை சேமிக்க கிளவுட் சேமிப்பகத்தை இணைக்கவும்.",
+connect:"இணைக்கவும்",
+privacy:"தனியுரிமை",
+profileVisibility:"சுயவிவரத் தெரிவுநிலை",
+visibilityDescription:"மற்ற கற்றவர்களை உங்கள் சுயவிவரத்தைப் பார்க்க அனுமதிக்கவும்.",
+connectedApps:"இணைக்கப்பட்ட பயன்பாடுகள்",
+appsDescription:"உங்கள் AI Learn கணக்குடன் இணைக்கப்பட்ட பயன்பாடுகளை நிர்வகிக்கவும்.",
+connected:"● இணைக்கப்பட்டது",
+disconnect:"துண்டிக்கவும்",
+saveAll:"அனைத்து மாற்றங்களையும் சேமிக்கவும்",
+savedAll:"✓ அனைத்து மாற்றங்களும் வெற்றிகரமாக சேமிக்கப்பட்டன!"
+
+},
+
+fr: {
+
+home:"Accueil",
+dashboard:"Tableau de bord",
+learning:"Apprentissage",
+myProfile:"Mon profil",
+pageTitle:"Mon profil",
+pageDescription:"Gérez votre compte et vos préférences d’apprentissage.",
+companion:"Assistant d’apprentissage IA",
+personalInformation:"INFORMATIONS PERSONNELLES",
+firstName:"Prénom",
+lastName:"Nom",
+username:"Nom d’utilisateur",
+emailPassword:"E-MAIL ET MOT DE PASSE",
+email:"Adresse e-mail",
+newPassword:"Nouveau mot de passe",
+confirmPassword:"Confirmer le mot de passe",
+enter:"Entrer",
+firstNamePlaceholder:"Entrez votre prénom",
+lastNamePlaceholder:"Entrez votre nom",
+usernamePlaceholder:"Entrez votre nom d’utilisateur",
+emailPlaceholder:"Entrez votre adresse e-mail",
+passwordPlaceholder:"Entrez votre nouveau mot de passe",
+confirmPasswordPlaceholder:"Confirmez votre mot de passe",
+usage:"UTILISATION",
+learningSessions:"Sessions d’apprentissage",
+learningTime:"Temps total d’apprentissage",
+dayStreak:"Série de jours",
+appearance:"APPARENCE",
+appearanceDescription:"Choisissez l’apparence d’AI Learn.",
+light:"Clair",
+dark:"Sombre",
+system:"Système",
+editor:"ÉDITEUR",
+fontSize:"Taille de police",
+editorFont:"Police de l’éditeur",
+defaultView:"VUE PAR DÉFAUT",
+openTo:"Ouvrir AI Learn sur",
+aiPreferences:"PRÉFÉRENCES IA",
+personalizedLearning:"Apprentissage personnalisé",
+personalizedDescription:"Permettez à l’IA de personnaliser votre expérience.",
+aiSuggestions:"Suggestions IA",
+suggestionsDescription:"Recevez des recommandations selon vos progrès.",
+notifications:"NOTIFICATIONS",
+learningReminders:"Rappels d’apprentissage",
+remindersDescription:"Recevez des rappels pour continuer à apprendre.",
+weeklyProgress:"Progrès hebdomadaire",
+weeklyDescription:"Recevez un résumé hebdomadaire de vos progrès.",
+language:"LANGUE",
+preferredLanguage:"Langue préférée",
+cloudStorage:"STOCKAGE CLOUD",
+cloudDescription:"Connectez votre stockage cloud pour sauvegarder vos supports.",
+connect:"Connecter",
+privacy:"CONFIDENTIALITÉ",
+profileVisibility:"Visibilité du profil",
+visibilityDescription:"Permettez aux autres apprenants de voir votre profil.",
+connectedApps:"APPLICATIONS CONNECTÉES",
+appsDescription:"Gérez les applications connectées à votre compte AI Learn.",
+connected:"● Connecté",
+disconnect:"Déconnecter",
+saveAll:"Enregistrer toutes les modifications",
+savedAll:"✓ Toutes les modifications ont été enregistrées !"
+
+},
+
+es: {
+
+home:"Inicio",
+dashboard:"Panel",
+learning:"Aprendizaje",
+myProfile:"Mi perfil",
+pageTitle:"Mi perfil",
+pageDescription:"Administra tu cuenta y tus preferencias de aprendizaje.",
+companion:"Compañero de aprendizaje con IA",
+personalInformation:"INFORMACIÓN PERSONAL",
+firstName:"Nombre",
+lastName:"Apellido",
+username:"Nombre de usuario",
+emailPassword:"CORREO Y CONTRASEÑA",
+email:"Correo electrónico",
+newPassword:"Nueva contraseña",
+confirmPassword:"Confirmar contraseña",
+enter:"Aceptar",
+firstNamePlaceholder:"Introduce tu nombre",
+lastNamePlaceholder:"Introduce tu apellido",
+usernamePlaceholder:"Introduce tu nombre de usuario",
+emailPlaceholder:"Introduce tu correo",
+passwordPlaceholder:"Introduce tu nueva contraseña",
+confirmPasswordPlaceholder:"Confirma tu contraseña",
+usage:"USO",
+learningSessions:"Sesiones de aprendizaje",
+learningTime:"Tiempo total de aprendizaje",
+dayStreak:"Racha de días",
+appearance:"APARIENCIA",
+appearanceDescription:"Elige cómo se ve AI Learn en tu dispositivo.",
+light:"Claro",
+dark:"Oscuro",
+system:"Sistema",
+editor:"EDITOR",
+fontSize:"Tamaño de fuente",
+editorFont:"Fuente del editor",
+defaultView:"VISTA PREDETERMINADA",
+openTo:"Abrir AI Learn en",
+aiPreferences:"PREFERENCIAS DE IA",
+personalizedLearning:"Aprendizaje personalizado",
+personalizedDescription:"Permite que la IA personalice tu experiencia.",
+aiSuggestions:"Sugerencias de IA",
+suggestionsDescription:"Recibe recomendaciones según tu progreso.",
+notifications:"NOTIFICACIONES",
+learningReminders:"Recordatorios de aprendizaje",
+remindersDescription:"Recibe recordatorios para continuar aprendiendo.",
+weeklyProgress:"Progreso semanal",
+weeklyDescription:"Recibe un resumen semanal de tu progreso.",
+language:"IDIOMA",
+preferredLanguage:"Idioma preferido",
+cloudStorage:"ALMACENAMIENTO EN LA NUBE",
+cloudDescription:"Conecta tu almacenamiento para guardar materiales.",
+connect:"Conectar",
+privacy:"PRIVACIDAD",
+profileVisibility:"Visibilidad del perfil",
+visibilityDescription:"Permite que otros estudiantes vean tu perfil.",
+connectedApps:"APLICACIONES CONECTADAS",
+appsDescription:"Administra las aplicaciones conectadas a tu cuenta.",
+connected:"● Conectado",
+disconnect:"Desconectar",
+saveAll:"Guardar todos los cambios",
+savedAll:"✓ Todos los cambios se han guardado correctamente."
+
+},
+
+de: {
+
+home:"Startseite",
+dashboard:"Dashboard",
+learning:"Lernen",
+myProfile:"Mein Profil",
+pageTitle:"Mein Profil",
+pageDescription:"Verwalte dein Konto und deine Lernpräferenzen.",
+companion:"KI-Lernbegleiter",
+personalInformation:"PERSÖNLICHE INFORMATIONEN",
+firstName:"Vorname",
+lastName:"Nachname",
+username:"Benutzername",
+emailPassword:"E-MAIL UND PASSWORT",
+email:"E-Mail-ID",
+newPassword:"Neues Passwort",
+confirmPassword:"Passwort bestätigen",
+enter:"Eingeben",
+firstNamePlaceholder:"Vorname eingeben",
+lastNamePlaceholder:"Nachname eingeben",
+usernamePlaceholder:"Benutzernamen eingeben",
+emailPlaceholder:"E-Mail eingeben",
+passwordPlaceholder:"Neues Passwort eingeben",
+confirmPasswordPlaceholder:"Passwort bestätigen",
+usage:"NUTZUNG",
+learningSessions:"Lernsitzungen",
+learningTime:"Gesamte Lernzeit",
+dayStreak:"Tages-Serie",
+appearance:"DARSTELLUNG",
+appearanceDescription:"Wähle das Erscheinungsbild von AI Learn.",
+light:"Hell",
+dark:"Dunkel",
+system:"System",
+editor:"EDITOR",
+fontSize:"Schriftgröße",
+editorFont:"Editor-Schriftart",
+defaultView:"STANDARDANSICHT",
+openTo:"AI Learn öffnen bei",
+aiPreferences:"KI-PRÄFERENZEN",
+personalizedLearning:"Personalisiertes Lernen",
+personalizedDescription:"Erlaube der KI, dein Lernerlebnis zu personalisieren.",
+aiSuggestions:"KI-Vorschläge",
+suggestionsDescription:"Erhalte Empfehlungen basierend auf deinem Fortschritt.",
+notifications:"BENACHRICHTIGUNGEN",
+learningReminders:"Lernerinnerungen",
+remindersDescription:"Erhalte Erinnerungen zum Weiterlernen.",
+weeklyProgress:"Wöchentlicher Fortschritt",
+weeklyDescription:"Erhalte eine wöchentliche Zusammenfassung.",
+language:"SPRACHE",
+preferredLanguage:"Bevorzugte Sprache",
+cloudStorage:"CLOUD-SPEICHER",
+cloudDescription:"Verbinde deinen Cloud-Speicher.",
+connect:"Verbinden",
+privacy:"DATENSCHUTZ",
+profileVisibility:"Profilsichtbarkeit",
+visibilityDescription:"Erlaube anderen Lernenden, dein Profil zu sehen.",
+connectedApps:"VERBUNDENE APPS",
+appsDescription:"Verwalte die mit deinem Konto verbundenen Apps.",
+connected:"● Verbunden",
+disconnect:"Trennen",
+saveAll:"Alle Änderungen speichern",
+savedAll:"✓ Alle Änderungen wurden erfolgreich gespeichert!"
+
+}
+
+};
+
+
+/* ==========================================================
+   ADD OTHER LANGUAGES USING BASE TRANSLATION
+========================================================== */
+
+translations.zh = translations.en;
+translations.ja = translations.en;
+translations.ko = translations.en;
+translations.it = translations.es;
+translations.pt = translations.es;
+translations.ru = translations.en;
+translations.tr = translations.en;
+translations.bn = translations.hi;
+translations.mr = translations.hi;
+translations.gu = translations.hi;
+translations.pa = translations.hi;
+translations.ur = translations.hi;
+translations.or = translations.hi;
+translations.as = translations.hi;
+translations.ne = translations.hi;
+translations.sa = translations.hi;
+translations.ar = translations.en;
+translations.kn = translations.te;
+translations.ml = translations.te;
+
+
+/* ==========================================================
+   CURRENT LANGUAGE
+========================================================== */
+
+let currentLanguage =
+    localStorage.getItem("aiLearnLanguage") || "en";
+
+
+/* ==========================================================
+   TRANSLATE PAGE
+========================================================== */
+
+function translatePage(language) {
+
+    const languageData =
+        translations[language] || translations.en;
+
+
+    currentLanguage = language;
+
+
+    /* Translate normal text */
+
+    document
+        .querySelectorAll("[data-key]")
+        .forEach(function(element) {
+
+            const key =
+                element.getAttribute("data-key");
+
+
+            if (languageData[key]) {
+
+                element.textContent =
+                    languageData[key];
+
+            }
+
+        });
+
+
+    /* Translate placeholders */
+
+    document
+        .querySelectorAll("[data-placeholder]")
+        .forEach(function(element) {
+
+            const key =
+                element.getAttribute(
+                    "data-placeholder"
+                );
+
+
+            if (languageData[key]) {
+
+                element.placeholder =
+                    languageData[key];
+
+            }
+
+        });
+
+
+    /* Save language */
+
+    localStorage.setItem(
+        "aiLearnLanguage",
+        language
+    );
+
+
+    /* Change HTML language */
+
+    document.documentElement.lang =
+        language;
+
+
+    /* Update select options */
+
+    updateSelectTexts(language);
+
+}
+
+
+/* ==========================================================
+   UPDATE SELECT OPTIONS
+========================================================== */
+
+function updateSelectTexts(language) {
+
+    const data =
+        translations[language] || translations.en;
+
+
+    const fontSize =
+        document.getElementById("fontSize");
+
+    const editorFont =
+        document.getElementById("editorFont");
+
+    const defaultView =
+        document.getElementById("defaultView");
+
+
+    if (language === "en") {
+
+        fontSize.innerHTML = `
+            <option>Small</option>
+            <option selected>Medium</option>
+            <option>Large</option>
+        `;
+
+        editorFont.innerHTML = `
+            <option selected>Default</option>
+            <option>Monospace</option>
+            <option>Serif</option>
+        `;
+
+        defaultView.innerHTML = `
+            <option selected>Dashboard</option>
+            <option>Learning</option>
+            <option>My Profile</option>
+        `;
+
+        return;
+
+    }
+
+
+    if (language === "hi") {
+
+        fontSize.innerHTML = `
+            <option>छोटा</option>
+            <option selected>मध्यम</option>
+            <option>बड़ा</option>
+        `;
+
+        editorFont.innerHTML = `
+            <option selected>डिफ़ॉल्ट</option>
+            <option>मोनोस्पेस</option>
+            <option>सेरिफ</option>
+        `;
+
+        defaultView.innerHTML = `
+            <option selected>डैशबोर्ड</option>
+            <option>सीखना</option>
+            <option>मेरी प्रोफ़ाइल</option>
+        `;
+
+        return;
+
+    }
+
+
+    if (language === "te") {
+
+        fontSize.innerHTML = `
+            <option>చిన్నది</option>
+            <option selected>మధ్యస్థం</option>
+            <option>పెద్దది</option>
+        `;
+
+        editorFont.innerHTML = `
+            <option selected>డిఫాల్ట్</option>
+            <option>మోనోస్పేస్</option>
+            <option>సెరిఫ్</option>
+        `;
+
+        defaultView.innerHTML = `
+            <option selected>డ్యాష్‌బోర్డ్</option>
+            <option>లెర్నింగ్</option>
+            <option>నా ప్రొఫైల్</option>
+        `;
+
+        return;
+
+    }
+
+
+    /* For other languages */
+
+    fontSize.innerHTML = `
+        <option>Small</option>
+        <option selected>Medium</option>
+        <option>Large</option>
+    `;
+
+    editorFont.innerHTML = `
+        <option selected>Default</option>
+        <option>Monospace</option>
+        <option>Serif</option>
+    `;
+
+    defaultView.innerHTML = `
+        <option selected>Dashboard</option>
+        <option>Learning</option>
+        <option>My Profile</option>
+    `;
+
+}
+
+
+/* ==========================================================
+   LANGUAGE CHANGE
+========================================================== */
+
+document
+    .getElementById("language")
+    .addEventListener(
+        "change",
+        function() {
+
+            translatePage(this.value);
+
+        }
+    );
+
+
+/* ==========================================================
+   SAVE FIELD
+========================================================== */
+
+function saveField(fieldName) {
+
+    const input =
+        document.getElementById(fieldName);
+
+    const value =
+        input.value.trim();
+
+
+    if (value === "") {
+
+        alert("Please enter a value first.");
+
+        input.focus();
+
+        return;
+
+    }
+
+
+    let profile =
+        JSON.parse(
+            localStorage.getItem(
+                "aiLearnProfile"
+            )
+        ) || {};
+
+
+    profile[fieldName] = value;
+
+
+    localStorage.setItem(
+        "aiLearnProfile",
+        JSON.stringify(profile)
+    );
+
+
+    showSavedMessage(fieldName);
+
+    updateProfileName();
+
+}
+
+
+/* ==========================================================
+   SAVE PASSWORD
+========================================================== */
+
+function savePassword() {
+
+    const password =
+        document.getElementById(
+            "password"
+        ).value;
+
+
+    const confirmPassword =
+        document.getElementById(
+            "confirmPassword"
+        ).value;
+
+
+    if (password === "") {
+
+        alert("Please enter your new password.");
+
+        return;
+
+    }
+
+
+    if (confirmPassword === "") {
+
+        alert("Please confirm your password.");
+
+        return;
+
+    }
+
+
+    if (password !== confirmPassword) {
+
+        alert("Passwords do not match.");
+
+        return;
+
+    }
+
+
+    let profile =
+        JSON.parse(
+            localStorage.getItem(
+                "aiLearnProfile"
+            )
+        ) || {};
+
+
+    profile.password = password;
+
+    profile.confirmPassword =
+        confirmPassword;
+
+
+    localStorage.setItem(
+        "aiLearnProfile",
+        JSON.stringify(profile)
+    );
+
+
+    showSavedMessage("password");
+
+    showSavedMessage("confirmPassword");
+
+}
+
+
+/* ==========================================================
+   SAVED MESSAGE
+========================================================== */
+
+function showSavedMessage(fieldName) {
+
+    const message =
+        document.getElementById(
+            fieldName + "-message"
+        );
+
+
+    if (!message) {
+        return;
+    }
+
+
+    message.style.display = "block";
+
+
+    setTimeout(function() {
+
+        message.style.display = "none";
+
+    }, 2500);
+
+}
+
+
+/* ==========================================================
+   ENTER KEY
+========================================================== */
+
+[
+    "firstName",
+    "lastName",
+    "username",
+    "email"
+].forEach(function(fieldName) {
+
+    document
+        .getElementById(fieldName)
+        .addEventListener(
+            "keydown",
+            function(event) {
+
+                if (event.key === "Enter") {
+
+                    event.preventDefault();
+
+                    saveField(fieldName);
+
+                }
+
+            }
+        );
+
+});
+
+
+document
+    .getElementById("password")
+    .addEventListener(
+        "keydown",
+        function(event) {
+
+            if (event.key === "Enter") {
+
+                event.preventDefault();
+
+                savePassword();
+
+            }
+
+        }
+    );
+
+
+document
+    .getElementById("confirmPassword")
+    .addEventListener(
+        "keydown",
+        function(event) {
+
+            if (event.key === "Enter") {
+
+                event.preventDefault();
+
+                savePassword();
+
+            }
+
+        }
+    );
+
+
+/* ==========================================================
+   PROFILE NAME
+========================================================== */
+
+function updateProfileName() {
+
+    const firstName =
+        document.getElementById(
+            "firstName"
+        ).value.trim();
+
+
+    const lastName =
+        document.getElementById(
+            "lastName"
+        ).value.trim();
+
+
+    let name =
+        (firstName + " " + lastName).trim();
+
+
+    if (name === "") {
+
+        name = "Alex Learner";
+
+    }
+
+
+    document.getElementById(
+        "profileName"
+    ).textContent = name;
+
+
+    const initials =
+        name
+            .split(" ")
+            .filter(Boolean)
+            .map(function(x) {
+                return x[0];
+            })
+            .join("")
+            .substring(0,2)
+            .toUpperCase();
+
+
+    document.getElementById(
+        "avatar"
+    ).textContent = initials;
+
+}
+
+
+/* ==========================================================
+   SAVE ALL
+========================================================== */
+
+function saveAll() {
+
+    const password =
+        document.getElementById(
+            "password"
+        ).value;
+
+
+    const confirmPassword =
+        document.getElementById(
+            "confirmPassword"
+        ).value;
+
+
+    if (password !== confirmPassword) {
+
+        alert("Passwords do not match.");
+
+        return;
+
+    }
+
+
+    const profile = {
+
+        firstName:
+            document.getElementById(
+                "firstName"
+            ).value.trim(),
+
+        lastName:
+            document.getElementById(
+                "lastName"
+            ).value.trim(),
+
+        username:
+            document.getElementById(
+                "username"
+            ).value.trim(),
+
+        email:
+            document.getElementById(
+                "email"
+            ).value.trim(),
+
+        password: password,
+
+        confirmPassword:
+            confirmPassword,
+
+        language:
+            document.getElementById(
+                "language"
+            ).value,
+
+        personalizedLearning:
+            document.getElementById(
+                "personalizedLearning"
+            ).checked,
+
+        aiSuggestions:
+            document.getElementById(
+                "aiSuggestions"
+            ).checked,
+
+        learningReminders:
+            document.getElementById(
+                "learningReminders"
+            ).checked,
+
+        weeklyProgress:
+            document.getElementById(
+                "weeklyProgress"
+            ).checked,
+
+        profileVisibility:
+            document.getElementById(
+                "profileVisibility"
+            ).checked
+
+    };
+
+
+    localStorage.setItem(
+        "aiLearnProfile",
+        JSON.stringify(profile)
+    );
+
+
+    const message =
+        document.getElementById(
+            "saveMessage"
+        );
+
+
+    message.style.display = "block";
+
+
+    setTimeout(function() {
+
+        message.style.display = "none";
+
+    }, 3000);
+
+}
+
+
+/* ==========================================================
+   THEME
+========================================================== */
+
+document
+    .querySelectorAll(
+        'input[name="theme"]'
+    )
+    .forEach(function(option) {
+
+        option.addEventListener(
+            "change",
+            function() {
+
+                document.body.classList.remove(
+                    "dark-mode"
+                );
+
+
+                if (
+                    this.value === "dark"
+                ) {
+
+                    document.body.classList.add(
+                        "dark-mode"
+                    );
+
+                }
+
+
+                if (
+                    this.value === "system" &&
+                    window.matchMedia(
+                        "(prefers-color-scheme: dark)"
+                    ).matches
+                ) {
+
+                    document.body.classList.add(
+                        "dark-mode"
+                    );
+
+                }
+
+
+                document
+                    .querySelectorAll(
+                        ".theme-option"
+                    )
+                    .forEach(function(card) {
+
+                        card.classList.remove(
+                            "selected"
+                        );
+
+                    });
+
+
+                this
+                    .closest(".theme-option")
+                    .classList.add(
+                        "selected"
+                    );
+
+
+                localStorage.setItem(
+                    "aiLearnTheme",
+                    this.value
+                );
+
+            }
+        );
+
+    });
+
+
+/* ==========================================================
+   DISCONNECT
+========================================================== */
+
+function disconnectApp(app) {
+
+    if (
+        confirm(
+            "Are you sure you want to disconnect " +
+            app +
+            "?"
+        )
+    ) {
+
+        alert(
+            app +
+            " has been disconnected."
+        );
+
+    }
+
+}
+
+
+/* ==========================================================
+   LOAD SAVED DATA
+========================================================== */
+
+window.addEventListener(
+    "DOMContentLoaded",
+    function() {
+
+        const profile =
+            JSON.parse(
+                localStorage.getItem(
+                    "aiLearnProfile"
+                )
+            );
+
+
+        if (profile) {
+
+            [
+                "firstName",
+                "lastName",
+                "username",
+                "email",
+                "password",
+                "confirmPassword"
+            ].forEach(function(field) {
+
+                if (
+                    profile[field] !== undefined
+                ) {
+
+                    document.getElementById(
+                        field
+                    ).value =
+                        profile[field];
+
+                }
+
+            });
+
+
+            [
+                "personalizedLearning",
+                "aiSuggestions",
+                "learningReminders",
+                "weeklyProgress",
+                "profileVisibility"
+            ].forEach(function(field) {
+
+                if (
+                    profile[field] !== undefined
+                ) {
+
+                    document.getElementById(
+                        field
+                    ).checked =
+                        profile[field];
+
+                }
+
+            });
+
+
+            if (profile.language) {
+
+                document.getElementById(
+                    "language"
+                ).value =
+                    profile.language;
+
+                currentLanguage =
+                    profile.language;
+
+            }
+
+        }
+
+
+        const savedTheme =
+            localStorage.getItem(
+                "aiLearnTheme"
+            );
+
+
+        if (
+            savedTheme === "dark"
+        ) {
+
+            document.body.classList.add(
+                "dark-mode"
+            );
+
+            document.querySelector(
+                'input[value="dark"]'
+            ).checked = true;
+
+        }
+
+
+        updateProfileName();
+
+
+        /* THIS IS THE IMPORTANT PART */
+
+        translatePage(currentLanguage);
+
+    }
+);
+
+</script>
+
+</body>
+
+</html>
+```

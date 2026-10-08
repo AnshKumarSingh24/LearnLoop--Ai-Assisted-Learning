@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Personalize Your Experience</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+<div class="questionnaire-page">
+
+    <div class="question-card">
+
+        <div class="question-top">
+
+            <p id="questionNumber">Question 1 of 7</p>
+
+            <div class="question-progress">
+                <div id="progressBar"></div>
+            </div>
+
+        </div>
+
+        <div id="questionContainer">
+
+            <!-- Question will appear here -->
+
+        </div>
+
+        <div class="question-buttons">
+
+            <button id="backButton" onclick="previousQuestion()">
+                ← Back
+            </button>
+
+            <button id="nextButton" onclick="nextQuestion()">
+                Continue →
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<script>
+
+const questions = [
+
+    {
+        question: "What is your current learner level?",
+        type: "single",
+        options: [
+            "Beginner",
+            "Intermediate",
+            "Advanced",
+            "Expert"
+        ]
+    },
+
+    {
+        question: "What do you expect from your AI learning companion?",
+        type: "multiple",
+        options: [
+            "Understand concepts",
+            "Solve problems",
+            "Practice",
+            "Get personalized guidance",
+            "Prepare for exams",
+            "Build projects"
+        ]
+    },
+
+    {
+        question: "What is your preferred learning format?",
+        type: "multiple",
+        options: [
+            "Text",
+            "Examples",
+            "Videos",
+            "Interactive exercises",
+            "Step-by-step tutorials",
+            "Practice questions"
+        ]
+    },
+
+    {
+        question: "How would you like things to be explained?",
+        type: "single",
+        options: [
+            "Simple and concise",
+            "Detailed and comprehensive",
+            "Step-by-step",
+            "Example-driven",
+            "Visual",
+            "Technical"
+        ]
+    },
+
+    {
+        question: "Which role best describes you?",
+        type: "single",
+        options: [
+            "Student",
+            "Teacher",
+            "Researcher",
+            "Professional",
+            "Other"
+        ]
+    },
+
+    {
+        question: "How strictly should the AI stick to provided or verified information?",
+        type: "single",
+        options: [
+            "Strict",
+            "Balanced",
+            "Flexible"
+        ]
+    },
+
+    {
+        question: "How would you like sources and citations?",
+        type: "single",
+        options: [
+            "Always show sources",
+            "Show sources when relevant",
+            "Only show when requested",
+            "Don't show sources"
+        ]
+    }
+
+];
+
+
+let currentQuestion = 0;
+
+let answers = [];
+
+const questionContainer =
+    document.getElementById("questionContainer");
+
+const questionNumber =
+    document.getElementById("questionNumber");
+
+const progressBar =
+    document.getElementById("progressBar");
+
+const backButton =
+    document.getElementById("backButton");
+
+const nextButton =
+    document.getElementById("nextButton");
+
+
+function showQuestion() {
+
+    const question = questions[currentQuestion];
+
+    questionNumber.textContent =
+        `Question ${currentQuestion + 1} of ${questions.length}`;
+
+    progressBar.style.width =
+        `${((currentQuestion + 1) / questions.length) * 100}%`;
+
+    questionContainer.innerHTML = "";
+
+    const title = document.createElement("h1");
+
+    title.textContent = question.question;
+
+    questionContainer.appendChild(title);
+
+
+    const optionsContainer =
+        document.createElement("div");
+
+    optionsContainer.className = "options";
+
+
+    question.options.forEach((option, index) => {
+
+        const button =
+            document.createElement("button");
+
+        button.className = "option";
+
+        button.textContent = option;
+
+        button.onclick = function() {
+
+            if (question.type === "single") {
+
+                document
+                    .querySelectorAll(".option")
+                    .forEach(btn =>
+                        btn.classList.remove("selected")
+                    );
+
+                button.classList.add("selected");
+
+                answers[currentQuestion] = [option];
+
+            } else {
+
+                button.classList.toggle("selected");
+
+                if (!answers[currentQuestion]) {
+                    answers[currentQuestion] = [];
+                }
+
+                if (button.classList.contains("selected")) {
+
+                    answers[currentQuestion].push(option);
+
+                } else {
+
+                    answers[currentQuestion] =
+                        answers[currentQuestion]
+                            .filter(item => item !== option);
+
+                }
+
+            }
+
+        };
+
+        optionsContainer.appendChild(button);
+
+    });
+
+
+    questionContainer.appendChild(optionsContainer);
+
+
+    backButton.style.visibility =
+        currentQuestion === 0 ? "hidden" : "visible";
+
+
+    if (currentQuestion === questions.length - 1) {
+
+        nextButton.textContent = "Finish →";
+
+    } else {
+
+        nextButton.textContent = "Continue →";
+
+    }
+
+}
+
+
+function nextQuestion() {
+
+    if (!answers[currentQuestion] ||
+        answers[currentQuestion].length === 0) {
+
+        alert("Please select an answer.");
+
+        return;
+
+    }
+
+
+    if (currentQuestion < questions.length - 1) {
+
+        currentQuestion++;
+
+        showQuestion();
+
+    } else {
+
+        localStorage.setItem(
+            "userAnswers",
+            JSON.stringify(answers)
+        );
+
+        window.location.href =
+            "complete.html";
+
+    }
+
+}
+
+
+function previousQuestion() {
+
+    if (currentQuestion > 0) {
+
+        currentQuestion--;
+
+        showQuestion();
+
+    }
+
+}
+
+
+showQuestion();
+
+</script>
+
+</body>
+</html>
