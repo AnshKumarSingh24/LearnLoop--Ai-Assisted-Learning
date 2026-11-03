@@ -1,13 +1,15 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useLocation } from "wouter";
 import {
-  ArrowLeft, BookOpen, Brain, Check, CheckCircle2, FileText,
-  Headphones, Loader2, Map, MessageCircle, RotateCcw, Sparkles, Target,
-  Trash2, Upload, X,
+  ArrowLeft, BookOpen, Brain, Check, CheckCircle2, ChevronLeft, ChevronRight, FileText,
+  Headphones, Loader2, Map, MessageCircle, RotateCcw, Search, Sparkles, Target,
+  Trash2, Upload, X, ZoomIn, ZoomOut,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { captureApiHeaders, captureApiUrl } from "@/lib/captureApi";
 import MindMap, { type MindMapBranch, type MindMapData } from "@/components/MindMap";
+import SketchnoteNotebook from "@/components/notes/SketchnoteNotebook";
+import CuratedStudyNotebook from "@/components/notes/CuratedStudyNotebook";
 
 type ToolId = "notes" | "mind-map" | "flashcards" | "quizzes" | "podcast" | "ask-ai" | "focus" | "questions";
 type SourceRef = { page?: number | null; section?: string | null; paragraph?: number | null; quote: string };
@@ -30,7 +32,7 @@ const tools: { id: ToolId; name: string; description: string; Icon: typeof FileT
 ];
 
 const configOptions: Partial<Record<ToolId, { key: string; label: string; choices: string[] }[]>> = {
-  notes: [{ key: "detail", label: "Detail", choices: ["Brief", "Detailed"] }, { key: "definitions", label: "Definitions", choices: ["On", "Off"] }, { key: "keyPoints", label: "Key points", choices: ["On", "Off"] }, { key: "quotes", label: "Important quotes", choices: ["On", "Off"] }, { key: "language", label: "Language", choices: ["Document language", "English"] }],
+  notes: [],
   "mind-map": [{ key: "levels", label: "Hierarchy", choices: ["3 levels", "5 levels", "7 levels"] }, { key: "detail", label: "Detail", choices: ["Concise", "Expanded"] }, { key: "examples", label: "Include examples", choices: ["On", "Off"] }, { key: "relationships", label: "Relationships", choices: ["On", "Off"] }, { key: "layout", label: "Canvas layout", choices: ["Radial", "Outline"] }],
   flashcards: [{ key: "count", label: "Cards", choices: ["5", "10", "20"] }, { key: "mode", label: "Mode", choices: ["Recall", "Application"] }, { key: "difficulty", label: "Difficulty", choices: ["Easy", "Mixed", "Hard"] }, { key: "format", label: "Format", choices: ["Term-definition", "Question-answer"] }],
   quizzes: [{ key: "count", label: "Questions", choices: ["5", "10", "20"] }, { key: "difficulty", label: "Difficulty", choices: ["Easy", "Mixed", "Hard"] }, { key: "types", label: "Question types", choices: ["Mixed", "Multiple choice", "Short answer"] }, { key: "explanations", label: "Explanations", choices: ["On", "Off"] }],
@@ -51,6 +53,72 @@ function formatBytes(bytes: number) {
 function compactOption(option: string): string {
   const words = option.trim().split(/\s+/);
   return words.length > 16 ? `${words.slice(0, 16).join(" ")}…` : option;
+}
+
+const noteStyleChoices = [
+  {
+    id: "visual",
+    title: "Interesting Notes (Notebook Replica)",
+    description: "Exact visual replica of digital handwritten study notebook with spiral binding, colored section circles, hand-drawn diagrams, key points, and takeaways.",
+  },
+  {
+    id: "standard",
+    title: "Curated Study Notebook",
+    description: "Structured curriculum-style study notebook with clear chapters, definitions, and curated visual concept flows.",
+  },
+];
+
+function NotesConfiguration({
+  config,
+  onChange,
+}: {
+  config: Record<string, unknown>;
+  onChange: (key: string, value: unknown) => void;
+}) {
+  return (
+    <div className="space-y-4">
+      <div>
+        <h3 className="font-extrabold text-gray-900">Choose your note style</h3>
+        <p className="mt-1 text-xs text-gray-600">Turn this source into notes that match the way you learn.</p>
+        <div className="mt-3 grid gap-3 sm:grid-cols-2">
+          {noteStyleChoices.map(style => {
+            const selected = (config.style || "standard") === style.id;
+            return (
+              <button
+                key={style.id}
+                type="button"
+                aria-pressed={selected}
+                onClick={() => onChange("style", style.id)}
+                className={`rounded-2xl border-2 p-4 text-left transition ${
+                  selected
+                    ? "border-[#1b7a52] bg-emerald-50 shadow-xs"
+                    : "border-gray-200 bg-white hover:border-emerald-200"
+                }`}
+              >
+                <div className="flex items-center justify-between">
+                  <span className="block text-sm font-extrabold text-gray-900">{style.title}</span>
+                  <span
+                    className={`flex h-5 w-5 items-center justify-center rounded-full border text-[11px] ${
+                      selected ? "border-[#1b7a52] bg-[#1b7a52] text-white" : "border-gray-300 text-transparent"
+                    }`}
+                  >
+                    ✓
+                  </span>
+                </div>
+                <span className="mt-1.5 block text-xs leading-relaxed text-gray-600">{style.description}</span>
+              </button>
+            );
+          })}
+        </div>
+      </div>
+      <div className="rounded-xl border border-emerald-200/80 bg-emerald-50/70 p-3.5 text-xs text-emerald-950 flex items-center gap-2.5 shadow-2xs">
+        <Sparkles size={16} className="text-[#1b7a52] shrink-0" />
+        <span>
+          <strong>AI Auto-Curated:</strong> Key concepts, hand-drawn diagrams, definitions, and chapter takeaways are automatically generated according to your document content.
+        </span>
+      </div>
+    </div>
+  );
 }
 
 function mindMapData(result: Record<string, any>): MindMapData {
@@ -217,6 +285,7 @@ export default function DocumentToolkit({ documentId }: { documentId: string }) 
         if (generatable.length) setActive(generatable[0]);
         else setLocation(`/learn?documentId=${encodeURIComponent(documentId)}&mode=questions`);
       }
+      if (generatable.includes("notes")) setActive("notes");
       await refresh();
     } catch (cause) {
       console.error("Could not generate selected document tools:", cause);
@@ -279,6 +348,41 @@ export default function DocumentToolkit({ documentId }: { documentId: string }) 
       setError(cause instanceof Error ? cause.message : "Could not delete this result.");
     }
   };
+  const generateNotes = async (style: string, options: Record<string, unknown>, regenerate = false) => {
+    const config = { ...options, style, regenerate };
+    setError("");
+    setActive("notes");
+    try {
+      await request(`/api/v1/documents/${encodeURIComponent(documentId)}/tools`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ tools: ["notes"], config: { notes: config } }),
+      });
+      const requestedStyles = style === "both" ? ["standard", "visual"] : [style];
+      for (let attempt = 0; attempt < 180; attempt++) {
+        const latest = await request(`/api/v1/documents/${encodeURIComponent(documentId)}/tools`);
+        setRecords(latest.tools || {});
+        const noteRecord = latest.tools?.notes;
+        if (noteRecord?.status === "failed") throw new Error(noteRecord.error || "Could not generate these notes.");
+        const available = (noteRecord?.result?.versions || []).map((version: { style: string }) => version.style);
+        if (noteRecord?.status === "ready" && requestedStyles.every(noteStyle => available.includes(noteStyle))) return;
+        await new Promise(resolve => window.setTimeout(resolve, 750));
+      }
+      throw new Error("Note generation is taking longer than expected. Try again from the Notes workspace.");
+    } catch (cause) {
+      console.error("Could not generate document notes:", cause);
+      setError(cause instanceof Error ? cause.message : "Could not generate notes. Please retry.");
+      throw cause;
+    }
+  };
+  const saveNoteResult = async (result: Record<string, any>) => {
+    await request(`/api/v1/documents/${encodeURIComponent(documentId)}/tools/notes`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ result }),
+    });
+    await refresh();
+  };
   const askDocument = async (event: React.FormEvent) => {
     event.preventDefault();
     if (!askText.trim()) return;
@@ -305,6 +409,31 @@ export default function DocumentToolkit({ documentId }: { documentId: string }) 
     } catch (cause) {
       console.error(`Could not retry document ${kind}:`, cause);
       setError(cause instanceof Error ? cause.message : `Could not retry ${kind}.`);
+    }
+  };
+  const createRelatedTool = async (toolId: ToolId) => {
+    if (toolId === "questions") {
+      setLocation(`/learn?documentId=${encodeURIComponent(documentId)}&mode=questions`);
+      return;
+    }
+    setActive(toolId);
+    try {
+      await request(`/api/v1/documents/${encodeURIComponent(documentId)}/tools`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ tools: [toolId], config: {} }),
+      });
+      for (let attempt = 0; attempt < 180; attempt++) {
+        const latest = await request(`/api/v1/documents/${encodeURIComponent(documentId)}/tools`);
+        setRecords(latest.tools || {});
+        if (latest.tools?.[toolId]?.status === "ready") return;
+        if (latest.tools?.[toolId]?.status === "failed") throw new Error(latest.tools[toolId].error || `Could not create ${toolId}.`);
+        await new Promise(resolve => window.setTimeout(resolve, 750));
+      }
+      throw new Error(`Creating ${toolId} is taking longer than expected.`);
+    } catch (cause) {
+      console.error(`Could not create ${toolId} from notes:`, cause);
+      setError(cause instanceof Error ? cause.message : `Could not create ${toolId}.`);
     }
   };
 
@@ -351,7 +480,20 @@ export default function DocumentToolkit({ documentId }: { documentId: string }) 
         </section>
       ) : <div className="py-16 text-center"><Loader2 className="mx-auto animate-spin text-[#1b7a52]" size={34} /><p className="mt-4 font-bold capitalize text-gray-700">{document.stage.replaceAll("_", " ")}</p><p className="mt-2 text-sm text-gray-500">Extracting and grounding the learning tools in this upload.</p></div> : (
         <>
-          {active && records[active]?.status === "ready" ? (
+          {active === "notes" ? (
+            <section className="mt-7">
+              <NotesWorkspace
+                documentTitle={document.title || document.filename}
+                result={records.notes?.result || {}}
+                status={records.notes?.status || ""}
+                error={records.notes?.error || error}
+                onBack={() => setActive(null)}
+                onGenerate={generateNotes}
+                onSave={saveNoteResult}
+                onCreateTool={createRelatedTool}
+              />
+            </section>
+          ) : active && records[active]?.status === "ready" ? (
             <section className="mt-7">
               <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
                 <div><p className="text-xs font-extrabold uppercase tracking-wider text-[#1b7a52]">Document workspace</p><h2 className="text-2xl font-extrabold text-gray-900">{tools.find(tool => tool.id === active)?.name}</h2></div>
@@ -390,7 +532,7 @@ export default function DocumentToolkit({ documentId }: { documentId: string }) 
                         {status === "failed" && <button type="button" onClick={() => void retryTool(id)} className="rounded-md px-2 py-1 text-xs font-bold text-red-700">Retry</button>}
                       </div>
                     </div>
-                    {configuring === id && <div className="relative z-[1] mt-3 grid grid-cols-2 gap-2 border-t pt-3">{configOptions[id]?.map(option => <label key={option.key} className="text-[11px] font-bold text-gray-600">{option.label}<select aria-label={`${name} ${option.label}`} value={String(configuration[id]?.[option.key] ?? option.choices[0])} onChange={event => setConfiguration(current => ({ ...current, [id]: { ...(current[id] || {}), [option.key]: option.key === "count" || option.key === "duration" || option.key === "rounds" ? Number(event.target.value) : event.target.value } }))} className="mt-1 block w-full rounded-lg border bg-white p-2 text-xs font-medium text-gray-800">{option.choices.map(choice => <option key={choice} value={choice.match(/^\d+$/) ? Number(choice) : choice}>{choice}</option>)}</select></label>)}</div>}
+                    {configuring === id && <div className="relative z-[1] mt-3 border-t pt-3">{id === "notes" ? <NotesConfiguration config={configuration.notes || {}} onChange={(key, value) => setConfiguration(current => ({ ...current, notes: { ...(current.notes || {}), [key]: value } }))} /> : <div className="grid grid-cols-2 gap-2">{configOptions[id]?.map(option => <label key={option.key} className="text-[11px] font-bold text-gray-600">{option.label}<select aria-label={`${name} ${option.label}`} value={String(configuration[id]?.[option.key] ?? option.choices[0])} onChange={event => setConfiguration(current => ({ ...current, [id]: { ...(current[id] || {}), [option.key]: option.key === "count" || option.key === "duration" || option.key === "rounds" ? Number(event.target.value) : event.target.value } }))} className="mt-1 block w-full rounded-lg border bg-white p-2 text-xs font-medium text-gray-800">{option.choices.map(choice => <option key={choice} value={choice.match(/^\d+$/) ? Number(choice) : choice}>{choice}</option>)}</select></label>)}</div>}</div>}
                   </article>;
                 })}
               </div>
@@ -414,6 +556,284 @@ export default function DocumentToolkit({ documentId }: { documentId: string }) 
       </div>}
     </main>
   );
+}
+
+function NotesWorkspace({
+  documentTitle,
+  result,
+  status,
+  error,
+  onBack,
+  onGenerate,
+  onSave,
+  onCreateTool,
+}: {
+  documentTitle: string;
+  result: Record<string, any>;
+  status: string;
+  error: string;
+  onBack: () => void;
+  onGenerate: (style: string, options: Record<string, unknown>, regenerate?: boolean) => Promise<void>;
+  onSave: (result: Record<string, any>) => Promise<void>;
+  onCreateTool: (toolId: ToolId) => Promise<void>;
+}) {
+  const legacySections = (result.items || []).map((item: any, index: number) => ({
+    id: `legacy-${index + 1}`,
+    number: index + 1,
+    title: item.title || `Section ${index + 1}`,
+    summary: item.text || "",
+    paragraphs: item.text ? [item.text] : [],
+    keyPoints: item.text ? [item.text] : [],
+    takeaway: "",
+    sourceReference: item.sourceReference,
+  }));
+  const versions: Record<string, any> = Object.fromEntries(
+    Array.isArray(result.versions)
+      ? result.versions.filter((version: any) => ["standard", "visual"].includes(version.style)).map((version: any) => [version.style, version])
+      : legacySections.length ? [["standard", {
+          style: "standard",
+          title: result.title || `${documentTitle} — Study Notes`,
+          overview: result.summary || "",
+          sections: legacySections,
+        }]] : [],
+  );
+
+  // Automatically synthesize visual notebook pages from standard sections if visual version is not yet created
+  if (versions.standard && !versions.visual) {
+    versions.visual = {
+      style: "visual",
+      title: versions.standard.title,
+      subtitle: versions.standard.subtitle || "Concepts You Actually Need",
+      overview: versions.standard.overview,
+      learningObjectives: versions.standard.learningObjectives,
+      pages: (versions.standard.sections || []).map((sec: any, idx: number) => ({
+        id: sec.id || `page-${idx + 1}`,
+        pageNumber: Math.floor(idx / 2) + 2,
+        sectionNumber: sec.number || idx + 1,
+        heading: sec.title || `Concept ${idx + 1}`,
+        explanation: sec.summary || (sec.paragraphs?.[0] ?? ""),
+        keyPoints: (sec.keyPoints && sec.keyPoints.length) ? sec.keyPoints : (sec.paragraphs || [sec.summary || "Core concept"]).slice(0, 4),
+        highlightedTerms: sec.definitions || [],
+        visual: sec.visual || { type: "steps", labels: [sec.title || "Concept", "Mechanism", "Impact"] },
+        takeaway: sec.takeaway || (sec.paragraphs?.[0] ? `Key takeaway: ${sec.paragraphs[0]}` : ""),
+        sourceReference: sec.sourceReference,
+      })),
+    };
+  }
+
+  const availableStyles = ["visual", "standard"].filter(style => versions[style]);
+  const [selectedStyle, setSelectedStyle] = useState<string>(availableStyles[0] || "visual");
+  const [showChooser, setShowChooser] = useState(availableStyles.length === 0);
+  const [selectedGenerationStyle, setSelectedGenerationStyle] = useState("visual");
+  const [options, setOptions] = useState<Record<string, unknown>>(result.config || {});
+  const [activePage, setActivePage] = useState(0);
+  const [search, setSearch] = useState("");
+  const [zoom, setZoom] = useState(100);
+  const [showSource, setShowSource] = useState(false);
+  const [editing, setEditing] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [draft, setDraft] = useState<Record<string, any>>({});
+  const [errorMessage, setErrorMessage] = useState("");
+  const version = versions[selectedStyle];
+  const entries: any[] = version?.[selectedStyle === "visual" ? "pages" : "sections"] || [];
+  const filteredEntries = entries.filter((entry: any) => JSON.stringify(entry).toLowerCase().includes(search.toLowerCase()));
+  const currentEntry = filteredEntries[Math.min(activePage, Math.max(0, filteredEntries.length - 1))];
+  const resultForEdit = editing ? draft : result;
+  const editableVersion = () => (draft.versions || []).find((entry: any) => entry.style === selectedStyle);
+
+  useEffect(() => {
+    if (availableStyles.length && !availableStyles.includes(selectedStyle)) setSelectedStyle(availableStyles[0]);
+  }, [availableStyles.join("|"), selectedStyle]);
+
+  const chooseStyle = (style: string) => {
+    setSelectedGenerationStyle(style);
+    setShowChooser(false);
+    if (style !== "both" && versions[style]) {
+      setSelectedStyle(style);
+      setActivePage(0);
+    }
+  };
+  const generate = async (regenerate = false) => {
+    setErrorMessage("");
+    try {
+      await onGenerate(selectedGenerationStyle, options, regenerate);
+      setShowChooser(false);
+      setSelectedStyle(selectedGenerationStyle === "visual" ? "visual" : "standard");
+      setActivePage(0);
+    } catch (cause) {
+      setErrorMessage(cause instanceof Error ? cause.message : "Could not generate these notes.");
+    }
+  };
+  const beginEdit = () => {
+    setDraft(JSON.parse(JSON.stringify(result)));
+    setEditing(true);
+  };
+  const updateEntry = (field: string, value: unknown) => {
+    const next = { ...draft, versions: [...(draft.versions || [])] };
+    const versionIndex = next.versions.findIndex((entry: any) => entry.style === selectedStyle);
+    if (versionIndex < 0) return;
+    const versionDraft = { ...next.versions[versionIndex] };
+    const collection = selectedStyle === "visual" ? "pages" : "sections";
+    versionDraft[collection] = [...versionDraft[collection]];
+    versionDraft[collection][activePage] = { ...versionDraft[collection][activePage], [field]: value };
+    next.versions[versionIndex] = versionDraft;
+    setDraft(next);
+  };
+  const saveEdits = async () => {
+    setSaving(true);
+    setErrorMessage("");
+    try {
+      await onSave(draft);
+      setEditing(false);
+    } catch (cause) {
+      setErrorMessage(cause instanceof Error ? cause.message : "Could not save your note edits.");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  return <div className="space-y-5">
+    <div className="flex flex-wrap items-start justify-between gap-3">
+      <div>
+        <button onClick={onBack} className="mb-2 inline-flex items-center text-xs font-bold text-gray-600 hover:text-[#1b7a52]"><ArrowLeft size={14} className="mr-1" /> Toolkit</button>
+        <p className="text-xs font-extrabold uppercase tracking-wider text-[#1b7a52]">Notes workspace</p>
+        <h2 className="mt-1 text-2xl font-extrabold text-gray-900">{version?.title || documentTitle}</h2>
+        <p className="mt-1 text-sm text-gray-600">Source: {documentTitle}</p>
+      </div>
+      {version && !showChooser && <div className="flex flex-wrap gap-2">
+        {availableStyles.length < 2 && (
+          <Button
+            variant="outline"
+            onClick={() => {
+              setShowChooser(true);
+              setSelectedGenerationStyle(availableStyles.includes("standard") ? "visual" : "standard");
+            }}
+          >
+            {availableStyles.includes("standard") ? "Generate Visual Sketchnotes" : "Generate Curated Notebook"}
+          </Button>
+        )}
+        <Button variant="outline" onClick={beginEdit} disabled={editing}>Edit</Button>
+        {editing && <><Button variant="outline" onClick={() => setEditing(false)}>Cancel</Button><Button onClick={() => void saveEdits()} disabled={saving} className="bg-[#1b7a52] text-white">{saving ? "Saving…" : "Save changes"}</Button></>}
+        <Button variant="outline" onClick={() => void generate(true)} disabled={status === "queued" || status === "generating" || status === "validating"}><RotateCcw size={14} className="mr-2" /> Regenerate</Button>
+      </div>}
+    </div>
+
+    {(error || errorMessage) && <p role="alert" className="rounded-xl border border-red-200 bg-red-50 p-3 text-sm text-red-800">{errorMessage || error}</p>}
+    {["queued", "generating", "validating"].includes(status) && <div role="status" className="flex items-center gap-2 rounded-xl border border-emerald-100 bg-emerald-50 p-3 text-sm font-semibold text-[#1b7a52]"><Loader2 size={16} className="animate-spin" /> Reading source, organizing concepts, and building your notes…</div>}
+
+    {showChooser || !version ? <div className="rounded-2xl border border-gray-200 bg-white p-5 sm:p-7">
+      <NotesConfiguration
+        config={{ ...options, style: selectedGenerationStyle }}
+        onChange={(key, value) => key === "style" ? chooseStyle(String(value)) : setOptions(current => ({ ...current, [key]: value }))}
+      />
+      <div className="mt-5 flex flex-wrap justify-end gap-2">
+        {availableStyles.length > 0 && <Button variant="outline" onClick={() => setShowChooser(false)}>Return to notes</Button>}
+        <Button onClick={() => void generate(false)} disabled={["queued", "generating", "validating"].includes(status)} className="bg-[#1b7a52] text-white">{status === "generating" ? "Generating…" : "Generate Notes"}</Button>
+      </div>
+    </div> : <>
+      <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border bg-white p-3">
+        <div className="flex flex-wrap gap-2" role="tablist" aria-label="Note style">
+          {availableStyles.map(style => (
+            <button
+              key={style}
+              role="tab"
+              aria-selected={selectedStyle === style}
+              onClick={() => {
+                setSelectedStyle(style);
+                setActivePage(0);
+                setShowSource(false);
+              }}
+              className={`rounded-xl px-4 py-2 text-xs font-bold transition ${
+                selectedStyle === style
+                  ? "bg-[#1b7a52] text-white shadow-xs"
+                  : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+              }`}
+            >
+              {style === "visual" ? "Interesting Notes (Notebook)" : "Curated Summary"}
+            </button>
+          ))}
+        </div>
+        <div className="flex items-center gap-2">
+          <label className="relative">
+            <Search size={14} className="absolute left-3 top-2.5 text-gray-400" />
+            <input
+              aria-label="Search within notes"
+              value={search}
+              onChange={event => {
+                setSearch(event.target.value);
+                setActivePage(0);
+              }}
+              placeholder="Search notes"
+              className="w-44 rounded-lg border py-2 pl-8 pr-3 text-xs"
+            />
+          </label>
+          <button
+            aria-label="Zoom out"
+            onClick={() => setZoom(value => Math.max(75, value - 10))}
+            className="rounded-lg border p-2 hover:bg-gray-50"
+          >
+            <ZoomOut size={15} />
+          </button>
+          <span className="text-xs font-semibold text-gray-500 w-9 text-center">{zoom}%</span>
+          <button
+            aria-label="Zoom in"
+            onClick={() => setZoom(value => Math.min(130, value + 10))}
+            className="rounded-lg border p-2 hover:bg-gray-50"
+          >
+            <ZoomIn size={15} />
+          </button>
+        </div>
+      </div>
+
+      {selectedStyle === "standard" ? (
+        filteredEntries.length > 0 ? (
+          <CuratedStudyNotebook
+            data={{
+              title: version.title || documentTitle,
+              subtitle: version.subtitle,
+              overview: version.overview,
+              learningObjectives: version.learningObjectives,
+              sections: filteredEntries,
+            }}
+            activeSection={activePage}
+            onSectionChange={setActivePage}
+            zoom={zoom}
+            editing={editing}
+            onEditSection={(idx, field, val) => updateEntry(field, val)}
+          />
+        ) : (
+          <div className="rounded-2xl border bg-white p-8 text-center text-sm text-gray-500">
+            No sections match your search query.
+          </div>
+        )
+      ) : filteredEntries.length > 0 ? (
+        <SketchnoteNotebook
+          title={version.title || documentTitle}
+          subtitle={version.subtitle}
+          overview={version.overview}
+          learningObjectives={version.learningObjectives}
+          entries={filteredEntries}
+          activePage={activePage}
+          onPageChange={setActivePage}
+          zoom={zoom}
+          editing={editing}
+          onEditEntry={(idx, field, val) => updateEntry(field, val)}
+        />
+      ) : (
+        <div className="rounded-2xl border bg-white p-8 text-center text-sm text-gray-500 font-hand">
+          No sketchnote concepts match your search query.
+        </div>
+      )}
+
+      <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border bg-white p-4">
+        <span className="text-xs font-bold uppercase tracking-wide text-gray-500">Continue learning from these notes</span>
+        <div className="flex flex-wrap gap-2">{[
+          ["flashcards", "Create flashcards"], ["quizzes", "Create quiz"], ["mind-map", "Create mind map"],
+          ["questions", "Document questions"], ["ask-ai", "Ask AI"], ["focus", "Start Focus"],
+        ].map(([tool, label]) => <Button key={tool} size="sm" variant="outline" onClick={() => void onCreateTool(tool as ToolId)}>{label}</Button>)}</div>
+      </div>
+    </>}
+  </div>;
 }
 
 function ToolResult({ toolId, result }: { toolId: ToolId; result: Record<string, any> }) {

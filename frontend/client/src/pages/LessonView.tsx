@@ -6,6 +6,7 @@ import { Button } from '../components/ui/button';
 import { useDarwinity } from '@/contexts/DarwinityStoreContext';
 import { initialCourses } from '@/lib/persistence';
 import { launchConfetti } from '@/lib/confetti';
+import { CAPTURE_API_URL } from '@/lib/captureApi';
 
 function parseBlock(rawBlock: any) {
   if (!rawBlock) return { type: 'explanation', title: 'Study Guide', content: 'No content available.' };
@@ -130,7 +131,6 @@ export function LessonView() {
           setGenerating(false);
         });
     } else {
-      const CAPTURE_API_URL = import.meta.env.VITE_CAPTURE_API_URL || "http://localhost:8080";
       fetch(`${CAPTURE_API_URL}/study/lesson/generate`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },

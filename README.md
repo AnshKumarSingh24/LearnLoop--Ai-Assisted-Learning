@@ -55,17 +55,23 @@ In today's fast-paced world, learners and educators are overwhelmed with unstruc
 - Automatically extracts key concepts from textbooks and generates **Multiple Choice Questions (MCQs)** and **Flashcards**.
 - Provides rich explanations for wrong answers to reinforce learning.
 
-### 3. Multimodal Capture Ingestion
+### 3. Source-Grounded Study Notes
+- Generate **Standard Structured Notes**, **Interesting Visual Notes**, or both as separate saved versions of the same source.
+- Standard notes organize the material into an overview, learning objectives, sections, key points, and review prompts.
+- Visual notes use a responsive notebook-inspired page layout with highlighted terms, relevant diagrams, takeaways, page navigation, and on-demand source references.
+- Notes remain attached to their source and workspace; generated content includes a source-only mode when an AI provider is unavailable.
+
+### 4. Multimodal Capture Ingestion
 - **Vision OCR:** Powered by Groq Vision for scanning receipts, textbook pages, and diagrams.
 - **Audio Transcription:** Powered by Groq Whisper for voice memos and lectures.
 - **Document Extractors:** Multi-format streaming extractors for `.pdf`, `.docx`, `.md`, and more.
 
-### 4. Gamified Learning & XP System
+### 5. Gamified Learning & XP System
 - Keeps learners engaged with a dynamic progression system.
 - Earn **+15 XP** for correct MCQ answers and **+10 Score** for completing levels.
 - Track daily streaks and learning milestones directly on the dashboard.
 
-### 5. Spatial Canvas & Study Workspace
+### 6. Spatial Canvas & Study Workspace
 - An interactive spatial whiteboard canvas embedded directly in the frontend for visual entity exploration and card grouping.
 - Smooth, frictionless rich-text editor for taking notes side-by-side with course materials.
 

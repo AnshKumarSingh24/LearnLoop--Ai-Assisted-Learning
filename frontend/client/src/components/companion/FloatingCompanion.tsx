@@ -3,11 +3,11 @@ import { useCompanion } from "@/contexts/CompanionContext";
 import { useDarwinity } from "@/contexts/DarwinityStoreContext";
 import { generate10LevelCourse } from "@/lib/courseGenerator";
 import { useEffect, useRef, useState } from "react";
+import { CAPTURE_API_URL } from "@/lib/captureApi";
 import "./FloatingCompanion.css";
 
 type Message = { role: "user" | "companion"; content: string };
 type Run = { title: string; complete: boolean };
-const CAPTURE_API_URL = import.meta.env.VITE_CAPTURE_API_URL || "http://localhost:8080";
 const SAVED_ARTIFACTS_KEY = "learnloop-saved-artifacts";
 const ACTION = /\b(create|make|build|generate|prepare|organize|turn .* into|simplif|rewrite|reorganize)\b/i;
 const topicOf = (text: string, fallback: string) => text.replace(/\b(create|make|build|generate|prepare|organize|turn|into|a|an|the|me|my|this|these|about|from|notes?|flashcards?|quiz|study guide|revision plan|course|canvas)\b/gi, " ").replace(/\s+/g, " ").trim() || fallback;

@@ -389,9 +389,6 @@ export default function Onboarding() {
     setRole(profile.role || saved.role || "student");
     setGrounding(saved.grounding || "grounded");
   }, [user, profile]);
-  useEffect(() => {
-    if (profile?.onboardingCompleted) setLocation("/");
-  }, [profile?.onboardingCompleted, setLocation]);
 
   useEffect(() => {
     if (user && authStep === "connect") setAuthStep("profile");
@@ -465,9 +462,8 @@ export default function Onboarding() {
   };
   const reset = () => { setStep("topic"); setProfileSaved(false); };
   if (loading) return <div className="flex min-h-screen items-center justify-center text-sm font-semibold text-gray-500">Loading your profile…</div>;
-  if (profile?.onboardingCompleted) return null;
   if (showLanding) return <LandingPage onStart={() => setShowLanding(false)} />;
-  if (authStep === "connect") return <ConnectStep onWeb={() => user ? setAuthStep("profile") : window.location.assign("/api/auth/google/start?returnTo=%2Fonboarding")} onBack={() => setShowLanding(true)} onGoogle={() => { window.location.assign(`/api/auth/google/start?returnTo=${encodeURIComponent("/onboarding")}`); }} />;
+  if (authStep === "connect") return <ConnectStep onWeb={() => setAuthStep("profile")} onBack={() => setShowLanding(true)} onGoogle={() => { window.location.assign(`/api/auth/google/start?returnTo=${encodeURIComponent("/onboarding")}`); }} />;
   if (authStep === "profile") return <ProfileStep firstName={firstName} setFirstName={setFirstName} lastName={lastName} setLastName={setLastName} displayName={displayName} setDisplayName={setDisplayName} email={email} setEmail={setEmail} userType={userType} setUserType={setUserType} interests={interests} setInterests={setInterests} workspaceName={workspaceName} setWorkspaceName={setWorkspaceName} language={language} setLanguage={setLanguage} dob={dob} setDob={setDob} details={details} setDetails={setDetails} avatarUrl={avatarUrl} avatarError={avatarError} onAvatarFile={file => void handleAvatarFile(file)} onRemoveAvatar={handleRemoveAvatar} terms={terms} setTerms={setTerms} saveError={profileSaveError} saving={false} onBack={() => setAuthStep("connect")} onContinue={() => { setProfileSaveError(""); setAuthStep("onboarding"); }} />;
   if (profileSaved) return <AuthShell><div className="auth-card text-center"><span className="setup-eyebrow"><span className="eyebrow-dot" /> PROFILE SAVED</span><h1>Your LearnLoop<br /><em>profile is ready.</em></h1><p className="lead">Welcome, {displayName.trim() || learnerName || email.split("@", 1)[0] || "New Learner"}. Opening your learning space…</p></div></AuthShell>;
 

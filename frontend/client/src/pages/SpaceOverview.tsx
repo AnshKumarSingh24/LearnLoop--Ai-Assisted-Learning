@@ -6,8 +6,8 @@ import { FileText, Plus, BookOpen, Brain, Sparkles, FolderPlus, Loader2, Upload,
 import { Button } from "@/components/ui/button";
 import { Page } from "@/types/darwinity";
 import { generate10LevelCourse } from "@/lib/courseGenerator";
+import { CAPTURE_API_URL } from "@/lib/captureApi";
 
-const CAPTURE_API_URL = import.meta.env.VITE_CAPTURE_API_URL || "http://localhost:8080";
 
 export default function SpaceOverview() {
   const { spaceId } = useParams();
@@ -410,7 +410,7 @@ export default function SpaceOverview() {
             <div className="flex-1 overflow-y-auto p-8 bg-white">
               {(previewCapture.capture_type === 'screenshot' || previewCapture.capture_type === 'image') && previewCapture.file_url && (
                 <div className="flex justify-center mb-8">
-                  <img src={`http://localhost:8080${previewCapture.file_url}`} alt={previewCapture.title} className="max-w-full max-h-[50vh] object-contain rounded-xl shadow-md border border-gray-200" />
+                  <img src={`${CAPTURE_API_URL}${previewCapture.file_url}`} alt={previewCapture.title} className="max-w-full max-h-[50vh] object-contain rounded-xl shadow-md border border-gray-200" />
                 </div>
               )}
               <div className="prose prose-sm max-w-none text-gray-700">

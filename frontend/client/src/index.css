@@ -1269,3 +1269,211 @@ html:not(.dark) .setup-left .setup-aside-footer { color: #557466; }
   flex-shrink: 0;
 }
 
+/* ═══════════════════════════════════════════════════════════════
+   AUTHENTIC SKETCHNOTE & CURATED NOTEBOOK STYLES
+   ═══════════════════════════════════════════════════════════════ */
+.font-hand {
+  font-family: 'Patrick Hand', 'Comic Neue', cursive, sans-serif;
+}
+
+.font-sketch {
+  font-family: 'Kalam', 'Patrick Hand', cursive, sans-serif;
+}
+
+.font-marker {
+  font-family: 'Architects Daughter', 'Patrick Hand', cursive, sans-serif;
+}
+
+.spiral-notebook-sheet {
+  background-color: #fefdfa;
+  background-image: 
+    linear-gradient(90deg, rgba(244, 63, 94, 0.12) 1px, transparent 1px),
+    repeating-linear-gradient(to bottom, transparent 0, transparent 31px, rgba(148, 163, 184, 0.22) 32px);
+  background-size: 100% 100%, 100% 32px;
+  background-position: 72px 0, 0 20px;
+}
+
+.curated-notebook-sheet {
+  background-color: #faf9f5;
+  background-image: 
+    linear-gradient(to right, rgba(0, 0, 0, 0.04) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(0, 0, 0, 0.04) 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+
+.hand-underline-blue {
+  text-decoration: underline;
+  text-decoration-color: #38bdf8;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 4px;
+}
+
+.hand-underline-purple {
+  text-decoration: underline;
+  text-decoration-color: #a855f7;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 4px;
+}
+
+.hand-underline-amber {
+  text-decoration: underline;
+  text-decoration-color: #f59e0b;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 4px;
+}
+
+.hand-underline-rose {
+  text-decoration: underline;
+  text-decoration-color: #fb7185;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 4px;
+}
+
+.hand-underline-emerald {
+  text-decoration: underline;
+  text-decoration-color: #10b981;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 4px;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   AUTHENTIC SPIRAL NOTEBOOK REPLICA STYLES
+   ═══════════════════════════════════════════════════════════════ */
+.notebook-page-canvas {
+  background-color: #fcf9f2;
+  background-image: 
+    radial-gradient(#e2ddd2 0.75px, transparent 0.75px),
+    linear-gradient(to right, rgba(0, 0, 0, 0.015) 1px, transparent 1px);
+  background-size: 20px 20px, 100% 100%;
+  box-shadow: 
+    0 20px 50px -15px rgba(0, 0, 0, 0.35),
+    0 0 0 1px rgba(0, 0, 0, 0.06),
+    0 2px 4px rgba(0, 0, 0, 0.04);
+}
+
+.notebook-desk-bg {
+  background-color: #1c1917;
+  background-image: 
+    radial-gradient(ellipse at 50% 20%, #292524 0%, #1c1917 100%);
+}
+
+.spiral-binding-gutter {
+  background: linear-gradient(to right, #dedad0 0%, #ece8de 40%, #f4f0e6 85%, #fcf9f2 100%);
+  border-right: 1.5px solid rgba(239, 68, 68, 0.25);
+}
+
+.spiral-hole {
+  width: 14px;
+  height: 18px;
+  background-color: #1a1a1a;
+  border-radius: 4px;
+  box-shadow: inset 1px 1px 3px rgba(0, 0, 0, 0.9), 0 1px 1px rgba(255, 255, 255, 0.4);
+}
+
+.spiral-coil-loop {
+  position: absolute;
+  left: 2px;
+  width: 42px;
+  height: 11px;
+  border-radius: 999px;
+  background: linear-gradient(180deg, #4b5563 0%, #1f2937 25%, #6b7280 50%, #111827 75%, #374151 100%);
+  box-shadow: 
+    0 3px 6px rgba(0, 0, 0, 0.45),
+    inset 0 1px 1px rgba(255, 255, 255, 0.5);
+  transform: rotate(-4deg);
+}
+
+.spiral-coil-loop-lower {
+  position: absolute;
+  left: 4px;
+  top: 9px;
+  width: 40px;
+  height: 9px;
+  border-radius: 999px;
+  background: linear-gradient(180deg, #374151 0%, #111827 40%, #4b5563 70%, #1f2937 100%);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.35);
+  transform: rotate(-3deg);
+}
+
+.hand-drawn-border {
+  border-radius: 255px 15px 225px 15px / 15px 225px 15px 255px;
+}
+
+.hand-drawn-border-sm {
+  border-radius: 180px 10px 160px 10px / 10px 160px 10px 180px;
+}
+
+.hand-drawn-circle {
+  border-radius: 50% 48% 52% 49% / 49% 53% 47% 51%;
+}
+
+.ink-heading-blue {
+  color: #16427d;
+  font-family: 'Patrick Hand', 'Comic Neue', cursive, sans-serif;
+}
+
+.ink-text-black {
+  color: #1e293b;
+  font-family: 'Patrick Hand', 'Comic Neue', cursive, sans-serif;
+}
+
+.ink-title-large {
+  font-family: 'Patrick Hand', 'Caveat', cursive, sans-serif;
+  letter-spacing: -0.01em;
+}
+
+.ink-separator-line {
+  position: relative;
+  height: 2px;
+  background-color: #38bdf8;
+  border-radius: 999px;
+}
+
+.ink-separator-line::before,
+.ink-separator-line::after {
+  content: '';
+  position: absolute;
+  top: -2.5px;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background-color: #0284c7;
+}
+
+.ink-separator-line::before {
+  left: 0;
+}
+
+.ink-separator-line::after {
+  right: 0;
+}
+
+.ink-separator-dot {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background-color: #0284c7;
+  border: 1.5px solid #fcf9f2;
+}
+
+.yellow-highlight-pill {
+  background-color: #fef08a;
+  border-radius: 6px;
+  padding: 1px 8px;
+  font-weight: 800;
+  color: #0f172a;
+  display: inline-block;
+  box-shadow: 0 1px 2px rgba(234, 179, 8, 0.2);
+}
+
+.takeaway-box-purple {
+  border: 1.8px solid #818cf8;
+  background-color: #faf5ff;
+  border-radius: 12px;
+  box-shadow: 0 1px 3px rgba(129, 140, 248, 0.15);
+}
+

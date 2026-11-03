@@ -34,15 +34,14 @@ function Router() {
 
   useEffect(() => {
     if (loading || !user || !profile) return;
-    if (!profile.onboardingCompleted && location !== "/onboarding") {
-      setLocation("/onboarding");
-    } else if (profile.onboardingCompleted && location === "/onboarding") {
-      setLocation("/");
+    if (!profile.onboardingCompleted && location !== "/onboarding" && location !== "/landing") {
+      setLocation("/landing");
     }
   }, [location, loading, profile, setLocation, user]);
 
   return (
     <Switch>
+      <Route path="/landing" component={Onboarding} />
       <Route path="/onboarding" component={Onboarding} />
       <Route path="/canvas/:spaceId/:pageId">
         {(params) => <Workspace key={params?.pageId} />}

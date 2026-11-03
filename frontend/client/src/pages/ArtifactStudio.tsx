@@ -4,6 +4,7 @@ import { useLocation, useSearch } from 'wouter';
 import { Button } from '../components/ui/button';
 import { trpc } from '@/lib/trpc';
 import { captureApiHeaders, captureApiUrl } from '@/lib/captureApi';
+import { resolveWorkspaceId } from '@/lib/workspace';
 
 type ArtifactType = 'mindmap' | 'summary' | 'flashcards' | 'key_concepts' | 'timeline' | 'study_guide' | 'podcast';
 
@@ -244,8 +245,7 @@ export default function ArtifactStudio() {
     setUploadStatus("Uploading");
     setArtifact(null);
     try {
-      const workspaceId = bootstrap.data?.id;
-      if (!workspaceId) throw new Error("Your learning workspace is still loading. Please try again.");
+      const workspaceId = await resolveWorkspaceId(bootstrap);
       const formData = new FormData();
       formData.append("file", file, file.name);
       formData.append("workspaceId", String(workspaceId));

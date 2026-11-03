@@ -17,8 +17,8 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { toast } from "sonner";
+import { CAPTURE_API_URL } from "@/lib/captureApi";
 
-const CAPTURE_API_URL = import.meta.env.VITE_CAPTURE_API_URL || "http://localhost:8080";
 
 const THEMES = [
   { id: "light", label: "Light", icon: "☀️" },

@@ -12,7 +12,20 @@ export function captureApiHeaders(): Record<string, string> {
   }
 }
 
+export function getCaptureApiBaseUrl(): string {
+  if (import.meta.env.VITE_CAPTURE_API_URL) {
+    return import.meta.env.VITE_CAPTURE_API_URL;
+  }
+  if (typeof window !== "undefined" && window.location.hostname && window.location.hostname !== "localhost" && window.location.hostname !== "127.0.0.1") {
+    return `${window.location.protocol}//${window.location.hostname}:8080`;
+  }
+  return "http://localhost:8080";
+}
+
+export const CAPTURE_API_URL = getCaptureApiBaseUrl();
+
 export function captureApiUrl(path: string): string {
-  const baseUrl = import.meta.env.VITE_CAPTURE_API_URL || "http://localhost:8080";
+  const baseUrl = getCaptureApiBaseUrl();
   return `${baseUrl}${path}`;
 }
+

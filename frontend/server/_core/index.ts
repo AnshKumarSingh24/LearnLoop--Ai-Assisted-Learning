@@ -1,4 +1,7 @@
 import "dotenv/config";
+if (!process.env.NODE_ENV) {
+  process.env.NODE_ENV = "development";
+}
 import express from "express";
 import { createServer } from "http";
 import net from "net";
@@ -45,7 +48,7 @@ async function startServer() {
     })
   );
   // development mode uses Vite, production mode uses static files
-  if (process.env.NODE_ENV === "development") {
+  if (process.env.NODE_ENV !== "production") {
     await setupVite(app, server);
   } else {
     serveStatic(app);
@@ -58,8 +61,9 @@ async function startServer() {
     console.log(`Port ${preferredPort} is busy, using port ${port} instead`);
   }
 
-  server.listen(port, () => {
-    console.log(`Server running on http://localhost:${port}/`);
+  const host = process.env.HOST || "0.0.0.0";
+  server.listen(port, host, () => {
+    console.log(`Server running on http://localhost:${port}/ and http://${host}:${port}/`);
   });
 }
 

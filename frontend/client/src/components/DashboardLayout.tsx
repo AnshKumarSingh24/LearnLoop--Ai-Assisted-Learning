@@ -73,6 +73,7 @@ const menuGroups = [
     label: "ACCOUNT",
     items: [
       { icon: UserCircle, label: "Profile", path: "/profile" },
+      { icon: Sparkles, label: "Landing & Onboarding", path: "/landing" },
     ]
   }
 ];

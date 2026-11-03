@@ -28,11 +28,11 @@ import { useAuth } from "@/_core/hooks/useAuth";
 import { useCompanion } from "@/contexts/CompanionContext";
 import { useDarwinity } from "@/contexts/DarwinityStoreContext";
 import { generate10LevelCourse } from "@/lib/courseGenerator";
-import { captureApiHeaders, captureApiUrl } from "@/lib/captureApi";
+import { captureApiHeaders, captureApiUrl, CAPTURE_API_URL } from "@/lib/captureApi";
+import { resolveWorkspaceId } from "@/lib/workspace";
 import { useEffect } from "react";
 import { useLocation, useSearch } from "wouter";
 
-const CAPTURE_API_URL = import.meta.env.VITE_CAPTURE_API_URL || "http://localhost:8080";
 
 type ModalMode = null | "upload" | "paste" | "record" | "synthesize";
 
@@ -272,8 +272,7 @@ export default function Dashboard() {
     setUploadStatus("Uploading");
     setUploadedDocumentId("");
     try {
-      const workspaceId = bootstrap.data?.id;
-      if (!workspaceId) throw new Error("Your learning workspace is still loading. Please try again.");
+      const workspaceId = await resolveWorkspaceId(bootstrap);
       {
         const formData = new FormData();
         formData.append("file", file, file.name);
@@ -366,8 +365,7 @@ export default function Dashboard() {
     setUploadError("");
     setUploadFailureStage("");
     try {
-      const workspaceId = bootstrap.data?.id;
-      if (!workspaceId) throw new Error("Your learning workspace is still loading. Please try again.");
+      const workspaceId = await resolveWorkspaceId(bootstrap);
       const trimmed = pasteText.trim();
       let parsedUrl: URL | null = null;
       try {

@@ -330,9 +330,20 @@ def test_question_generation_failure_does_not_block_other_tools(monkeypatch, tmp
 
     async def fake_notes_generation(tool_id, config, chunks):
         quote = chunks[0]["text"]
+        reference = {"quote": quote}
         return {
             "title": "Notes",
-            "items": [{"text": quote, "sourceReference": {"quote": quote}}],
+            "versions": [{
+                "style": "standard",
+                "title": "Study Notes",
+                "sections": [{
+                    "id": "section-1",
+                    "title": "Overview",
+                    "summary": quote,
+                    "sourceReference": reference,
+                }],
+            }],
+            "items": [{"text": quote, "sourceReference": reference}],
         }
 
     monkeypatch.setattr(document_questions, "_generate_ai_tool_result", fake_notes_generation)
@@ -370,20 +381,36 @@ def test_audio_transcription_without_provider_returns_actionable_error(monkeypat
 
 def test_ai_tool_output_drops_claims_without_exact_source_evidence(monkeypatch):
     source = "Chlorophyll absorbs sunlight in the leaves and supports photosynthesis."
+    valid = {
+        "id": "section-1",
+        "number": 1,
+        "title": "Chlorophyll",
+        "summary": "Chlorophyll absorbs sunlight in the leaves.",
+        "paragraphs": ["Chlorophyll absorbs sunlight in the leaves."],
+        "keyPoints": ["Chlorophyll absorbs sunlight in the leaves."],
+        "definitions": [],
+        "examples": [],
+        "takeaway": "Chlorophyll absorbs sunlight.",
+        "sourceId": "source-1",
+        "evidenceQuote": source,
+    }
+    invalid = {
+        **valid,
+        "id": "section-2",
+        "title": "Plant diseases",
+        "summary": "Chlorophyll cures every plant disease.",
+        "paragraphs": ["Chlorophyll cures every plant disease."],
+        "keyPoints": ["Chlorophyll cures every plant disease."],
+        "takeaway": "Chlorophyll cures every plant disease.",
+        "evidenceQuote": "A fabricated quote that is not in the source document.",
+    }
     generated = {
         "title": "Notes",
-        "items": [
-            {
-                "text": "Chlorophyll absorbs sunlight in the leaves.",
-                "sourceId": "source-1",
-                "evidenceQuote": source,
-            },
-            {
-                "text": "Chlorophyll cures every plant disease.",
-                "sourceId": "source-1",
-                "evidenceQuote": "A fabricated quote that is not in the source document.",
-            },
-        ],
+        "versions": [{
+            "style": "standard",
+            "title": "Study Notes",
+            "sections": [valid, invalid],
+        }],
     }
 
     async def fake_completion(*_args, **_kwargs):
@@ -398,6 +425,54 @@ def test_ai_tool_output_drops_claims_without_exact_source_evidence(monkeypatch):
     ))
     assert len(result["items"]) == 1
     assert result["items"][0]["sourceReference"]["page"] == 2
+    assert len(result["versions"][0]["sections"]) == 1
+
+
+def test_ai_visual_notes_are_cited_and_keep_three_to_five_key_points(monkeypatch):
+    source = (
+        "Electrochemical cells convert chemical energy into electrical energy. "
+        "A galvanic cell uses a spontaneous redox reaction to generate electricity. "
+        "An electrolytic cell uses electrical energy to drive a non-spontaneous reaction."
+    )
+    generated = {
+        "title": "Electrochemical Cells",
+        "versions": [{
+            "style": "visual",
+            "title": "Electrochemical Cells — Visual Notes",
+            "pages": [{
+                "pageNumber": 1,
+                "sectionNumber": 1,
+                "heading": "Electrochemical Cells",
+                "explanation": source,
+                "keyPoints": [
+                    "Electrochemical cells convert chemical energy into electrical energy.",
+                    "A galvanic cell uses a spontaneous redox reaction to generate electricity.",
+                    "An electrolytic cell uses electrical energy to drive a non-spontaneous reaction.",
+                ],
+                "highlightedTerms": [],
+                "visual": {"type": "comparison", "caption": "Two cell types", "labels": ["galvanic", "electrolytic"], "steps": []},
+                "example": None,
+                "takeaway": "The two cell types use different energy flows.",
+                "sourceId": "source-1",
+                "evidenceQuote": source,
+            }],
+        }],
+    }
+
+    async def fake_completion(*_args, **_kwargs):
+        return SimpleNamespace(choices=[SimpleNamespace(message=SimpleNamespace(content=json.dumps(generated)))])
+
+    monkeypatch.setattr(document_questions, "get_groq_client", lambda: object())
+    monkeypatch.setattr(document_questions, "_call_groq_with_fallback", fake_completion)
+    result = asyncio.run(document_questions._generate_ai_tool_result(
+        "notes",
+        {"style": "visual"},
+        [{"text": source, "page": 2, "section": "Electrochemical Cells"}],
+    ))
+    page = result["versions"][0]["pages"][0]
+    assert len(page["keyPoints"]) == 3
+    assert page["sourceReference"]["page"] == 2
+    assert page["sourceReference"]["quote"] == source
 
 
 def test_ai_mind_map_uses_validated_hierarchical_schema(monkeypatch):
@@ -525,6 +600,45 @@ def test_toolkit_works_without_groq_key_using_cited_source_only_results(monkeypa
                 for branch in mind_map["branches"]
                 for node in [branch, *branch["children"]]
             )
+
+
+def test_notes_generate_and_preserve_both_source_grounded_styles(monkeypatch, tmp_path):
+    client, store = make_client(monkeypatch, tmp_path)
+    monkeypatch.setattr(document_questions, "get_groq_client", lambda: None)
+    source = (
+        "Photosynthesis converts light energy into chemical energy in green plants.\n"
+        "Chlorophyll absorbs sunlight in the leaves.\n"
+        "Carbon dioxide enters through small openings called stomata.\n"
+        "Roots absorb water from the soil and transport it to the leaves.\n"
+        "The process produces glucose that stores energy for the plant.\n"
+        "Oxygen is released into the atmosphere as a byproduct."
+    )
+    upload = client.post(
+        "/api/v1/documents",
+        data={"workspaceId": "workspace-notes"},
+        files={"file": ("plant-science.txt", source.encode(), "text/plain")},
+    )
+    document_id = upload.json()["document"]["id"]
+
+    standard = client.post(
+        f"/api/v1/documents/{document_id}/tools",
+        json={"tools": ["notes"], "config": {"notes": {"style": "standard"}}},
+    )
+    assert standard.status_code == 200
+    stored = client.get(f"/api/v1/documents/{document_id}/tools").json()["tools"]["notes"]["result"]
+    assert [version["style"] for version in stored["versions"]] == ["standard"]
+    assert stored["versions"][0]["sections"]
+
+    visual = client.post(
+        f"/api/v1/documents/{document_id}/tools",
+        json={"tools": ["notes"], "config": {"notes": {"style": "visual"}}},
+    )
+    assert visual.status_code == 200
+    stored = client.get(f"/api/v1/documents/{document_id}/tools").json()["tools"]["notes"]["result"]
+    assert [version["style"] for version in stored["versions"]] == ["standard", "visual"]
+    assert stored["versions"][1]["pages"]
+    assert all(page["sourceReference"]["quote"] in source for page in stored["versions"][1]["pages"])
+    assert store.get_memory(document_id)["metadata"]["workspace_id"] == "workspace-notes"
 
     answer = client.post(
         f"/api/v1/documents/{document_id}/ask",
